@@ -1,0 +1,33 @@
+services:
+  web:
+    build: .
+    container_name: chat_ai
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./:/app
+      - ./serviceAccountKey.json:/app/serviceAccountKey.json:ro
+    environment:
+      - FLASK_ENV=development
+      - DB_HOST=db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=flask_db
+      - FIREBASE_SERVICE_ACCOUNT_PATH=/app/serviceAccountKey.json
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: flask_db
+    volumes:
+      - postgres_data:/var/lib/postgrsql/data
+    
+volumes:
+  postgres_data:

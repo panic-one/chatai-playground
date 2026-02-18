@@ -1,0 +1,15 @@
+from flask import request
+from firebase_admin import auth
+
+def verify_firebase_token():
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        return None, "Missing Bearer token"
+    
+    id_token = auth_header.split("Bearer ", 1)[1].strip()
+
+    try:
+        decoded = auth.verify_id_token(id_token)
+        return decoded.get("uid"), None
+    except Exception as e:
+        return None, str(e)

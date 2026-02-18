@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+.venv/
+
+# Environment variables
+.env
+
+# Firebase
+instance/serviceAccountKey.json
+
+# OS
+.DS_Store
+Thumbs.db
