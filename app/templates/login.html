@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ログイン</title>
 
-  <script src="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
   <link rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.css" />
+  <script src="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.js"></script>
 
   <style>
     body{
@@ -14,8 +16,7 @@
       min-height:100svh; 
       display:flex; 
       align-items:center; 
-      justify-content:flex-start; 
-      padding-top:80px;
+      justify-content:flex-start;
       flex-direction:column;
 
       gap:18px;
@@ -51,18 +52,17 @@
     <h1>ログイン</h1>
     <p>Google またはメールでログインできます。</p>
 
+    <div id="debug" style="margin-top:12px; font-size:12px; color:#b91c1c; white-space:pre-wrap;"></div>
     <div id="firebaseui-auth-container"></div>
     <div id="loader">Loading...</div>
   </main>
 
-  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
 
   <script id="firebase-config" type="application/json">
   {{ firebase_config | tojson }}
-</script>
+  </script>
 
-<script>
+  <script>
   const firebaseConfig = JSON.parse(
     document.getElementById("firebase-config").textContent
   );
@@ -72,20 +72,50 @@
   const ui = new firebaseui.auth.AuthUI(firebase.auth());
 
   const uiConfig = {
-    signInSuccessUrl: "/",
+    signInFlow: "popup",
+
     signInOptions: [
       firebase.auth.EmailAuthProvider.PROVIDER_ID,
       firebase.auth.GoogleAuthProvider.PROVIDER_ID,
     ],
+
     callbacks: {
       uiShown: function() {
         document.getElementById('loader').style.display = 'none';
+        console.log("FirebaseUI shown")
+      },
+
+    signInSuccessWithAuthResult: function(authResult) {
+      authResult.user.getIdToken().then(function(idToken){
+        fetch("/session", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "same-origin",
+          body: JSON.stringify({ idToken: idToken})
+        }).then(() => {
+          window.location.href = "/home";
+        });
+
+      });
+      return false;
+    },
+
+      signInFailure: function(error) {
+        console.error("FirebaseUI signInFailure:", error);
+        document.getElementById('debug').textContent =
+        `${error.code || ""}\n${error.message || error}`;
+        return Promise.resolve();
       }
-    }
+    },
   };
 
+  
+
   ui.start('#firebaseui-auth-container', uiConfig);
-</script>
+  </script>
+
 
 </body>
 </html>

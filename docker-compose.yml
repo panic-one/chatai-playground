@@ -13,6 +13,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_NAME=flask_db
       - FIREBASE_SERVICE_ACCOUNT_PATH=/app/instance/serviceAccountKey.json
+      - SECRET_KEY=dev-secret
     depends_on:
       - db
     restart: always
