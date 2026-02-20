@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["python", "contents/app.py"]
+CMD ["python", "run.py"]

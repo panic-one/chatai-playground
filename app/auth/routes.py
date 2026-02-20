@@ -11,4 +11,11 @@ def me():
 
 @auth_bp.get("/login")
 def login():
-    return render_template("login.html")
+    firebase_config = {
+        "apiKey": "AIzaSyBgpRpnqsvLDnWrgffQeEaU-2I5BFHPJTk",
+        "authDomain": "chatai-playground.firebaseapp.com",
+        "projectId": "chatai-playground",
+        "appId": "1:747369968863:web:75b240f4ca396c20bfe56a",
+        "messagingSenderId": "747369968863",
+    }
+    return render_template("login.html", firebase_config=firebase_config)

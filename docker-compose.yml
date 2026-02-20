@@ -6,14 +6,13 @@ services:
       - "5000:5000"
     volumes:
       - ./:/app
-      - ./serviceAccountKey.json:/app/serviceAccountKey.json:ro
     environment:
       - FLASK_ENV=development
       - DB_HOST=db
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_NAME=flask_db
-      - FIREBASE_SERVICE_ACCOUNT_PATH=/app/serviceAccountKey.json
+      - FIREBASE_SERVICE_ACCOUNT_PATH=/app/instance/serviceAccountKey.json
     depends_on:
       - db
     restart: always
@@ -27,7 +26,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: flask_db
     volumes:
-      - postgres_data:/var/lib/postgrsql/data
+      - postgres_data:/var/lib/postgresql/data
     
 volumes:
   postgres_data:
