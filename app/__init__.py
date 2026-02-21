@@ -1,6 +1,7 @@
 from flask import Flask
 from dotenv import load_dotenv
 from .firebase import init_firebase
+from datetime import timedelta
 import os
 
 def create_app():
@@ -16,8 +17,13 @@ def create_app():
     else:
         secret = os.environ.get("SECRET_KEY", "dev-secret")
     
-    app.config["SECRET_KEY"] = secret
-    app.config["SECRET_COOKIE_SECURE"] = is_prod
+    app.config.update(
+        SECRET_KEY=secret,
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE="Lax",
+        SESSION_COOKIE_SECURE=is_prod,
+        PERMANENT_SESSION_LIFETIME=timedelta(hours=8),
+    )
 
     init_firebase()
 

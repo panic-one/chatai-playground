@@ -87,7 +87,7 @@
 
     signInSuccessWithAuthResult: function(authResult) {
       authResult.user.getIdToken().then(function(idToken){
-        returnfetch("/session", {
+        return fetch("/session", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
