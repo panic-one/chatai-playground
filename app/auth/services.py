@@ -1,7 +1,7 @@
 from flask import request
 from firebase_admin import auth
 
-def verify_firebase_token(id_token: str):
+def verify_firebase_token(id_token: str | None = None):
     if not id_token:
         auth_header = request.headers.get("Authorization", "")
         if not auth_header.startswith("Bearer "):
@@ -15,5 +15,5 @@ def verify_firebase_token(id_token: str):
             return None, "uid not found in token"
         return uid, None
     except Exception as err:
-        return None, err
+        return None, str(err)
     
