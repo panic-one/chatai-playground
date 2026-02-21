@@ -65,8 +65,15 @@
       fetch("/logout", {
         method: "POST",
         credentials: "include",
-      }).then(() => {
+      }).then((response) => {
+        if (!response.ok) {
+          throw new Error("Logout request failed with status" + response.status);
+        }
         window.location.href = "/login";
+      })
+      .catch((error) => {
+        console.error("Logout failed:", error);
+        alert("ログアウトに失敗しました。時間をおいて再度お試しください。");
       });
     }
   </script>

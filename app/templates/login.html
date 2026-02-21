@@ -87,7 +87,7 @@
 
     signInSuccessWithAuthResult: function(authResult) {
       authResult.user.getIdToken().then(function(idToken){
-        fetch("/session", {
+        returnfetch("/session", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -96,6 +96,10 @@
           body: JSON.stringify({ idToken: idToken})
         }).then(() => {
           window.location.href = "/home";
+        })
+        .catch((error) => {
+          console.error("Session creation fialed:", error);
+          document.getElementById("debug").textContent = "Failed to create session. Please try again";
         });
 
       });

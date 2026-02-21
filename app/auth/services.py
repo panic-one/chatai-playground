@@ -6,7 +6,7 @@ def verify_firebase_token(id_token: str):
         auth_header = request.headers.get("Authorization", "")
         if not auth_header.startswith("Bearer "):
             return None, "Missing Bearer token"
-        id_token = auth_header.split("Bearer ", 1)[1].strip()
+        id_token = auth_header[len("Bearer "):].strip()
 
     try:
         decoded = auth.verify_id_token(id_token)
@@ -14,6 +14,6 @@ def verify_firebase_token(id_token: str):
         if not uid:
             return None, "uid not found in token"
         return uid, None
-    except Exception as e:
-        return None, str(e)
+    except Exception as err:
+        return None, err
     

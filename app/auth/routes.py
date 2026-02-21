@@ -24,7 +24,7 @@ def login():
 def home():
     uid = session.get("uid")
     if not uid:
-        return "Unauthorezed", 401
+        return "Unauthorized", 401
     return render_template("home.html", uid=uid)
 
 @auth_bp.post("/session")

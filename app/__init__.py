@@ -7,7 +7,17 @@ def create_app():
     load_dotenv()
 
     app = Flask(__name__)
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret")
+
+    env = os.environ.get("ENV", "development")
+    is_prod = env == "production"
+
+    if is_prod:
+        secret = os.environ["SECRET_KEY"]
+    else:
+        secret = os.environ.get("SECRET_KEY", "dev-secret")
+    
+    app.config["SECRET_KEY"] = secret
+    app.config["SECRET_COOKIE_SECURE"] = is_prod
 
     init_firebase()
 
