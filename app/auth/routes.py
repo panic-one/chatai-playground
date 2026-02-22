@@ -6,7 +6,7 @@ from .services import verify_firebase_token
 def me():
     uid, err = verify_firebase_token()
     if err:
-        return jsonify({"error": err}), 401
+        return jsonify({"error": str(err)}), 401
     return jsonify({"uid": uid}), 200
 
 @auth_bp.get("/login")
@@ -36,7 +36,7 @@ def create_session():
     
     uid, err = verify_firebase_token(id_token)
     if err:
-        return jsonify({"error": err}), 401
+        return jsonify({"error": str(err)}), 401
     
     session["uid"] = uid
     return jsonify({"ok": True, "uid": uid}), 200
