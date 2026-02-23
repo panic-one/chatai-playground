@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ログイン</title>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+  <link rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.css" />
+  <script src="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.js"></script>
+
+  <style>
+    body{
+      margin:0; 
+      min-height:100svh; 
+      display:flex; 
+      align-items:center; 
+      justify-content:flex-start;
+      flex-direction:column;
+
+      gap:18px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+      background:#f6f7fb;
+      padding:80px 24px 24px;
+    }
+    .page-title{
+      font-size:70px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:700;
+      margin-bottom:12px;
+    }
+    .card{
+      width:min(420px, 100%);
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      padding:20px 18px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.10);
+    }
+    h1{ margin:0 0 6px; font-size:20px; }
+    p{ margin:0 0 14px; color:#6b7280; font-size:13.5px; line-height:1.6; }
+    #loader{ color:#6b7280; font-size:13px; margin-top:12px; text-align:center; }
+  </style>
+</head>
+
+<body>
+  <div class="page-title">Chatai app</div>
+  <main class="card">
+    <h1>ログイン</h1>
+    <p>Google またはメールでログインできます。</p>
+
+    <div id="debug" style="margin-top:12px; font-size:12px; color:#b91c1c; white-space:pre-wrap;"></div>
+    <div id="firebaseui-auth-container"></div>
+    <div id="loader">Loading...</div>
+  </main>
+
+
+  <script id="firebase-config" type="application/json">
+  {{ firebase_config | tojson }}
+  </script>
+
+  <script>
+  const firebaseConfig = JSON.parse(
+    document.getElementById("firebase-config").textContent
+  );
+
+  firebase.initializeApp(firebaseConfig);
+
+  const ui = new firebaseui.auth.AuthUI(firebase.auth());
+
+  const uiConfig = {
+    signInFlow: "popup",
+
+    signInOptions: [
+      firebase.auth.EmailAuthProvider.PROVIDER_ID,
+      firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+    ],
+
+    callbacks: {
+      uiShown: function() {
+        document.getElementById('loader').style.display = 'none';
+        console.log("FirebaseUI shown")
+      },
+
+    signInSuccessWithAuthResult: function(authResult) {
+      authResult.user.getIdToken().then(function(idToken){
+        return fetch("/session", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "same-origin",
+          body: JSON.stringify({ idToken: idToken})
+        }).then(() => {
+          window.location.href = "/home";
+        })
+        .catch((error) => {
+          console.error("Session creation failed:", error);
+          document.getElementById("debug").textContent = "Failed to create session. Please try again";
+        });
+
+      });
+      return false;
+    },
+
+      signInFailure: function(error) {
+        console.error("FirebaseUI signInFailure:", error);
+        document.getElementById('debug').textContent =
+        `${error.code || ""}\n${error.message || error}`;
+        return Promise.resolve();
+      }
+    },
+  };
+
+  
+
+  ui.start('#firebaseui-auth-container', uiConfig);
+  </script>
+
+
+</body>
+</html>
