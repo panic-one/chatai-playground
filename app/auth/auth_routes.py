@@ -1,6 +1,6 @@
 from flask import jsonify, render_template, request, session
 from . import auth_bp
-from .services import verify_firebase_token
+from .auth_services import verify_firebase_token
 
 @auth_bp.get("/me")
 def me():
