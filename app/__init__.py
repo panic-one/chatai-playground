@@ -33,6 +33,8 @@ def create_app():
 
     from .auth import auth_bp
     app.register_blueprint(auth_bp, url_prefix="/auth")
+    
+    from .llm_change import llm_bp
     app.register_blueprint(llm_bp, url_prefix="/llm") 
 
     return app

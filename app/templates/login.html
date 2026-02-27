@@ -87,7 +87,7 @@
 
     signInSuccessWithAuthResult: function(authResult) {
       authResult.user.getIdToken().then(function(idToken){
-        return fetch("/session", {
+        return fetch("/auth/session", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -95,7 +95,7 @@
           credentials: "same-origin",
           body: JSON.stringify({ idToken: idToken})
         }).then(() => {
-          window.location.href = "/home";
+          window.location.href = "/auth/home";
         })
         .catch((error) => {
           console.error("Session creation failed:", error);

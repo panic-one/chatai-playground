@@ -62,14 +62,14 @@
 
   <script>
     function logout() {
-      fetch("/logout", {
+      fetch("/auth/logout", {
         method: "POST",
         credentials: "include",
       }).then((response) => {
         if (!response.ok) {
           throw new Error("Logout request failed with status:" + response.status);
         }
-        window.location.href = "/login";
+        window.location.href = "/auth/login";
       })
       .catch((error) => {
         console.error("Logout failed:", error);
