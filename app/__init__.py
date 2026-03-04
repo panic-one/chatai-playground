@@ -44,7 +44,7 @@ def create_app():
 
     with app.app_context():
         from .models.thread import Thread
-        from .models.chat import Message
+        from .models.message import Message
 
     init_firebase()
 
@@ -57,5 +57,8 @@ def create_app():
     
     from .llm_change import llm_bp
     app.register_blueprint(llm_bp, url_prefix="/llm") 
+
+    from app.chat import chat_bp
+    app.register_blueprint(chat_bp, url_prefix="/threads")
 
     return app
