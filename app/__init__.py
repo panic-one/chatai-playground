@@ -58,7 +58,7 @@ def create_app():
     from .llm_change import llm_bp
     app.register_blueprint(llm_bp, url_prefix="/llm") 
 
-    from app.chat import chat_bp
-    app.register_blueprint(chat_bp, url_prefix="/threads")
+    from app.chat import threads_bp
+    app.register_blueprint(threads_bp, url_prefix="/threads")
 
     return app

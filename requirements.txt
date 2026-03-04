@@ -4,3 +4,4 @@ python-dotenv
 Flask-SQLAlchemy
 psycopg2-binary
 flask-Migrate
+tzdata
