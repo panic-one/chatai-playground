@@ -27,7 +27,7 @@ def list_threads():
     return jsonify([t.to_dict() for t in threads]), 200
 
 @threads_bp.get("/<thread_id>")
-def get_thread(thread_id: str):
+def get_thread(thread_id: int):
     uid, err = require_login()
     if err:
         return err
@@ -43,7 +43,7 @@ def get_thread(thread_id: str):
     return jsonify(th.to_dict()), 200
 
 @threads_bp.patch("/<thread_id>")
-def update_title(thread_id: str):
+def update_title(thread_id: int):
     uid, err = require_login()
     if err:
         return err
@@ -64,7 +64,7 @@ def update_title(thread_id: str):
     return  jsonify(th.to_dict()), 200
 
 @threads_bp.delete("/<thread_id>")
-def delete_thread(thread_id: str):
+def delete_thread(thread_id: int):
     uid, err = require_login()
     if err:
         return err
@@ -119,3 +119,19 @@ def get_message(thread_id, message_id):
         if kind == "forbidden":
             return jsonify({"error": "forbidden"}), 403
     return jsonify(msg.to_dict()), 200
+
+@threads_bp.get("/<thread_id>/messages")
+def list_messages(thread_id):
+    uid, err = require_login()
+    if err:
+        return err
+    
+    messages, e = services.list_messages(uid, thread_id)
+    if e:
+        kind, _ = e
+        if kind == "not found":
+            return jsonify({"error": "thread not found"}), 403
+        if kind == "forbidden":
+            return jsonify({"error": "forbidden"}), 403
+        
+    return jsonify([m.to_dict() for m in messages]), 200

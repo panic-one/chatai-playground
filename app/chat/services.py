@@ -4,6 +4,7 @@ from app.models.message import Message
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import threading, time
+from flask import current_app
 
 JST = ZoneInfo("Asia/Tokyo")
 
@@ -12,18 +13,18 @@ def create_thread(uid, title):
     if not title:
         title = datetime.now(JST).strftime("%Y-%m-%d %H:%M")
     
-    th = Thread(title=title, owner_uid=uid)
+    th = Thread(title=title, firebase_uid=uid)
     db.session.add(th)
     db.session.commit()
     return th
 
 def list_threads(uid):
-    que = Thread.query.filter_by(owner_uid=uid)
+    que = Thread.query.filter_by(firebase_uid=uid)
 
     try:
         que = que.order_by(Thread.created_at.desc())
     except Exception:
-        que = que.order_by(Thread.id.desc())
+        que = que.order_by(Thread.thread_id.desc())
 
     return que.all()
 
@@ -31,7 +32,7 @@ def get_threads(uid, thread_id):
     th = Thread.query.get(thread_id)
     if not th:
         return None, ("not found", None)
-    if th.owner_uid != uid:
+    if th.firebase_uid != uid:
         return None, ("forbidden", None)
     return th, None
 
@@ -43,7 +44,7 @@ def update_thread_title(uid, thread_id, new_title):
     th = Thread.query.get(thread_id)
     if not th:
         return None, ("not found", None)
-    if th.owner_uid != uid:
+    if th.firebase_uid != uid:
         return None, ("forbidden", None)
     
     th.title = new_title
@@ -54,7 +55,7 @@ def delete_thread(uid, thread_id):
     th = Thread.query.get(thread_id)
     if not th:
         return False, ("not found", None)
-    if th.owner_uid != uid:
+    if th.firebase_uid != uid:
         return False, ("forbidden", None)
     
     Message.query.filter_by(thread_id=thread_id).delete(synchronize_session=False)
@@ -68,7 +69,7 @@ def ensure_thread_owner(uid, thread_id):
 
     if not th:
         return None, ("not found", None)
-    if th.owner_uid != uid:
+    if th.firebase_uid != uid:
         return None, ("forbidden", None)
     return th, None
 
@@ -112,9 +113,10 @@ def create_user_message_and_ai(uid, thread_id, content):
     db.session.add(ai_msg)
     db.session.commit()
 
+    app = current_app._get_current_object()
     threading.Thread(
         target=run_ai_generation,
-        args=(ai_msg.id,),
+        args=(app, ai_msg.message_id,),
         daemon=True,
     ).start()
 
@@ -134,11 +136,11 @@ def get_message(uid, thread_id, message_id):
         return None, ("not found", None)
     return msg, None
 
-def run_ai_generation(message_id):
-    ai = Message.query.get(message_id)
-
-    if not ai:
-        return
+def run_ai_generation(app, message_id):
+    with app.app_context():
+        ai = Message.query.get(message_id)
+        if not ai:
+            return
 
     chunks = [
         "考えています",
@@ -151,3 +153,21 @@ def run_ai_generation(message_id):
         db.session.commit()
 
         time.sleep(1)
+
+def list_messages(uid, thread_id, limit=200, offset=0):
+    _, e = ensure_thread_owner(uid, thread_id)
+    if e:
+        return None, e
+    
+    que = (
+        Message.query
+        .filter_by(thread_id=thread_id)
+        .order_by(Message.message_index.asc(), Message.message_id.asc())
+    )
+    
+    if offset:
+        que = que.offset(int(offset))
+    if limit:
+        que = que.limit(int(limit))
+
+    return que.all(), None
