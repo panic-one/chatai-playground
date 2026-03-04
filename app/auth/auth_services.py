@@ -1,5 +1,6 @@
 from flask import request
 from firebase_admin import auth
+from flask import session, jsonify
 
 def verify_firebase_token(id_token: str | None = None):
     if not id_token:
@@ -18,3 +19,8 @@ def verify_firebase_token(id_token: str | None = None):
     except Exception as err:
         return None, err
     
+def require_login():
+    uid = session.get("uid")
+    if not uid:
+        return None, (jsonify({"error": "Unauthorized"}), 401)
+    return uid, None
