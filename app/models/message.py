@@ -12,3 +12,15 @@ class Message(db.Model):
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     message_index = db.Column(db.Integer, nullable=False)
+
+    def to_dict(self):
+        return {
+            "message_id": self.message_id,
+            "thread_id": self.thread_id,
+            "role": self.role,
+            "content": self.content,
+            "model": self.model,
+            "firebase_uid": self.firebase_uid,
+            "message_index": self.message_index,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
