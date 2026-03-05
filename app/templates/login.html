@@ -95,7 +95,7 @@
           credentials: "same-origin",
           body: JSON.stringify({ idToken: idToken})
         }).then(() => {
-          window.location.href = "/auth/home";
+          window.location.href = "/threads/home";
         })
         .catch((error) => {
           console.error("Session creation failed:", error);

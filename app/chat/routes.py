@@ -1,8 +1,15 @@
-from flask import request, jsonify
+from flask import request, jsonify, render_template
 from . import threads_bp
 from app.extensions import db
 from app.auth.auth_services import require_login
 from . import services
+
+@threads_bp.route("/home", methods=["GET"])
+def home():
+    uid = require_login()
+    if not uid:
+        return jsonify({"error": "Unauthorized"}), 401
+    return render_template("home.html", uid=uid)
 
 @threads_bp.post("")
 def create_thread():

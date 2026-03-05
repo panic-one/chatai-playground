@@ -2,13 +2,6 @@ from flask import jsonify, render_template, request, session
 from . import auth_bp
 from .auth_services import verify_firebase_token
 
-@auth_bp.route("/me", methods=["GET"])
-def me():
-    uid, err = verify_firebase_token()
-    if err:
-        return jsonify({"error": str(err)}), 401
-    return jsonify({"uid": uid}), 200
-
 @auth_bp.route("/login", methods=["GET"])
 def login():
     firebase_config = {
@@ -19,13 +12,6 @@ def login():
         "messagingSenderId": "747369968863",
     }
     return render_template("login.html", firebase_config=firebase_config)
-
-@auth_bp.route("/home", methods=["GET"])
-def home():
-    uid = session.get("uid")
-    if not uid:
-        return jsonify({"error": "Unauthorized"}), 401
-    return render_template("home.html", uid=uid)
 
 @auth_bp.route("/session", methods=["POST"])
 def create_session():
