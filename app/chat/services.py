@@ -19,14 +19,10 @@ def create_thread(uid, title):
     return th
 
 def list_threads(uid):
-    que = Thread.query.filter_by(firebase_uid=uid)
+    query = Thread.query.filter_by(firebase_uid=uid)
+    query = query.order_by(Thread.created_at.desc())
 
-    try:
-        que = que.order_by(Thread.created_at.desc())
-    except Exception:
-        que = que.order_by(Thread.thread_id.desc())
-
-    return que.all()
+    return query.all()
 
 def get_threads(uid, thread_id):
     th = Thread.query.get(thread_id)
@@ -159,15 +155,15 @@ def list_messages(uid, thread_id, limit=200, offset=0):
     if e:
         return None, e
     
-    que = (
+    query = (
         Message.query
         .filter_by(thread_id=thread_id)
         .order_by(Message.message_index.asc(), Message.message_id.asc())
     )
     
     if offset:
-        que = que.offset(int(offset))
+        query = query.offset(int(offset))
     if limit:
-        que = que.limit(int(limit))
+        query = query.limit(int(limit))
 
-    return que.all(), None
+    return query.all(), None

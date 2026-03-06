@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ホーム</title>
 
-  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
-
   <style>
     :root{
       --bg: #0b0f19;
@@ -338,45 +335,46 @@
       .sidebar{ display:none; }
       .main{ height: 100svh; }
     }
-
+    
     .thread-row{
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 10px;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 10px;
     }
 
     .thread-text{
-      min-width: 0;
-      flex: 1 1 auto;
+    min-width: 0;
+    flex: 1 1 auto;
     }
 
     .thread-actions{
-      flex: 0 0 auto;
-      display:flex;
-      gap: 8px;
+    flex: 0 0 auto;
+    display:flex;
+    gap: 8px;
     }
 
     .icon-btn{
-      appearance:none;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.04);
-      color: rgba(255,255,255,.85);
-      border-radius: 10px;
-      padding: 6px 8px;
-      cursor:pointer;
-      line-height: 1;
-      font-size: 13px;
-      transition: opacity .15s ease, background .15s ease, transform .08s ease;
+    appearance:none;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,.04);
+    color: rgba(255,255,255,.85);
+    border-radius: 10px;
+    padding: 6px 8px;
+    cursor:pointer;
+    line-height: 1;
+    font-size: 13px;
+    transition: opacity .15s ease, background .15s ease, transform .08s ease;
     }
 
     .icon-btn:hover{ opacity:.92; background: rgba(255,255,255,.06); }
     .icon-btn:active{ transform: translateY(1px); }
 
     .icon-btn.danger{
-      border-color: rgba(239,68,68,.5);
-      background: rgba(239,68,68,.10);
+    border-color: rgba(239,68,68,.5);
+    background: rgba(239,68,68,.10);
     }
+
   </style>
 </head>
 
@@ -387,7 +385,7 @@
         <div class="logo">AI</div>
         <div>
           <h1>My Chat</h1>
-          <p>Firebase認証でログイン中 🎉</p>
+          <p>ログイン成功 🎉</p>
         </div>
       </div>
 
@@ -411,7 +409,7 @@
 
       <div class="sidebar-footer">
         <div>あなたのUID</div>
-        <div class="uid" id="uidText">読み込み中…</div>
+        <div class="uid">{{ uid }}</div>
       </div>
     </aside>
 
@@ -452,22 +450,6 @@
     </main>
   </div>
 
-  <script id="firebase-config" type="application/json">
-    {{ firebase_config | tojson }}
-  </script>
-
-  <script>
-    const firebaseConfig = JSON.parse(
-      document.getElementById("firebase-config").textContent
-    );
-
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    } else {
-        firebase.app();
-    }
-  </script>
-
   <script>
     const API_BASE = "/threads";
 
@@ -483,10 +465,8 @@
 
     const threadPill = document.getElementById("threadPill");
     const threadTitleEl = document.getElementById("threadTitle");
-    const uidText = document.getElementById("uidText");
 
     let currentThread = null;
-    let currentUser = null;
     const aiPollers = new Map();
 
     function scrollToBottom(){
@@ -510,29 +490,16 @@
       });
     }
 
-    async function getIdToken(){
-      const user = firebase.auth().currentUser;
-      if(!user){
-        throw new Error("Firebase user not found");
-      }
-      return await user.getIdToken(true);
-    }
-
-    async function apiFetch(path, options = {}){
-      const token = await getIdToken();
-
+    async function apiFetch(path, options={}){
       const res = await fetch(path, {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
           ...(options.headers || {}),
         },
         ...options,
       });
-
       const body = await safeJson(res);
-
       if(!res.ok){
         const msg = body?.error || body?.message || res.statusText || "Request failed";
         const err = new Error(msg);
@@ -540,7 +507,6 @@
         err.body = body;
         throw err;
       }
-
       return body;
     }
 
@@ -609,19 +575,20 @@
     }
 
     function renderThreadList(threads){
-      chatList.innerHTML = "";
-      threadCount.textContent = String(threads.length);
+    chatList.innerHTML = "";
+    threadCount.textContent = String(threads.length);
 
-      threads.forEach(th => {
+    threads.forEach(th => {
         const item = document.createElement("div");
         item.className = "chat-item";
 
         const tid = th.thread_id ?? th.id;
 
         if(currentThread && (currentThread.thread_id ?? currentThread.id) === tid){
-          item.classList.add("active");
+        item.classList.add("active");
         }
 
+        // row
         const row = document.createElement("div");
         row.className = "thread-row";
 
@@ -639,6 +606,7 @@
         textBox.appendChild(title);
         textBox.appendChild(meta);
 
+        // actions
         const actions = document.createElement("div");
         actions.className = "thread-actions";
 
@@ -648,9 +616,10 @@
         delBtn.title = "削除";
         delBtn.textContent = "🗑";
 
+        // ★ここ重要：削除ボタン押したら、スレッド選択クリックが発火しないようにする
         delBtn.addEventListener("click", async (e) => {
-          e.stopPropagation();
-          await deleteThread(tid);
+        e.stopPropagation();
+        await deleteThread(tid);
         });
 
         actions.appendChild(delBtn);
@@ -660,34 +629,28 @@
         item.appendChild(row);
 
         item.addEventListener("click", async () => {
-          [...chatList.querySelectorAll(".chat-item")].forEach(x => x.classList.remove("active"));
-          item.classList.add("active");
-          await selectThread(th);
+        [...chatList.querySelectorAll(".chat-item")].forEach(x => x.classList.remove("active"));
+        item.classList.add("active");
+        await selectThread(th);
         });
 
         chatList.appendChild(item);
-      });
+    });
 
-      if(!threads.length){
+    if(!threads.length){
         const empty = document.createElement("div");
         empty.className = "chat-item";
         empty.style.opacity = "0.8";
         empty.innerHTML = `<p class="title">スレッドがありません</p><p class="meta">「＋ 新しいチャット」で作成できます</p>`;
         chatList.appendChild(empty);
-      }
+    }
     }
 
     async function reloadThreads(){
       try{
         setSidebarStatus("スレッド取得中…");
-        const data = await apiFetch(API_BASE, { method: "GET" });
-
-        if(!Array.isArray(data)){
-          console.error("threads response:", data);
-          throw new Error("スレッド一覧の形式が不正です");
-        }
-
-        renderThreadList(data);
+        const threads = await apiFetch(`${API_BASE}`, { method: "GET" });
+        renderThreadList(threads);
         setSidebarStatus("");
       }catch(err){
         console.error(err);
@@ -696,38 +659,41 @@
     }
 
     async function deleteThread(tid){
-      if(!tid) return;
+    if(!tid) return;
 
-      const ok = confirm(`このスレッド(id:${tid})を削除しますか？`);
-      if(!ok) return;
+    const ok = confirm(`このスレッド(id:${tid})を削除しますか？`);
+    if(!ok) return;
 
-      try{
+    try{
         setSidebarStatus("削除中…");
+
+        // DELETE /threads/<id>
         await apiFetch(`${API_BASE}/${tid}`, { method: "DELETE" });
 
+        // もし今見てるスレッドを消したなら、右側クリアして未選択に戻す
         const curId = currentThread ? (currentThread.thread_id ?? currentThread.id) : null;
         if(curId === tid){
-          currentThread = null;
-          threadPill.textContent = "未選択";
-          threadTitleEl.textContent = "";
-          clearChat();
-          appendMessage({ role:"ai", content:"スレッドを削除しました。左から別のスレッドを選んでね。" });
-          setMainStatus("準備OK（スレッドを選択してね）");
+        currentThread = null;
+        threadPill.textContent = "未選択";
+        threadTitleEl.textContent = "";
+        clearChat();
+        appendMessage({ role:"ai", content:"スレッドを削除しました。左から別のスレッドを選んでね。" });
+        setMainStatus("準備OK（スレッドを選択してね）");
         }
 
         await reloadThreads();
         setSidebarStatus("");
-      }catch(err){
+    }catch(err){
         console.error(err);
         setSidebarStatus(`削除失敗: ${err.message}`, true);
         alert(`削除に失敗: ${err.message}`);
-      }
+    }
     }
 
     async function newChat(){
       try{
         setSidebarStatus("作成中…");
-        const th = await apiFetch(API_BASE, {
+        const th = await apiFetch(`${API_BASE}`, {
           method: "POST",
           body: JSON.stringify({ title: "" }),
         });
@@ -762,8 +728,8 @@
         }
 
         msgs.sort((a,b) => {
-          const diff = (a.message_index ?? 0) - (b.message_index ?? 0);
-          if(diff !== 0) return diff;
+          const ai = (a.message_index ?? 0) - (b.message_index ?? 0);
+          if(ai !== 0) return ai;
           return (a.message_id ?? 0) - (b.message_id ?? 0);
         });
 
@@ -860,24 +826,27 @@
           }
         }
 
+        sendBtn.disabled = false;
         setMainStatus("送信完了");
       }catch(err){
         console.error(err);
+        sendBtn.disabled = false;
         setMainStatus(`送信失敗: ${err.message}`, true);
         alert(`送信に失敗: ${err.message}`);
-      }finally{
-        sendBtn.disabled = false;
       }
     }
 
-    async function logout(){
-      try{
-        await firebase.auth().signOut();
+    function logout() {
+      fetch("/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      }).then((response) => {
+        if (!response.ok) throw new Error("Logout request failed with status:" + response.status);
         window.location.href = "/auth/login";
-      }catch(error){
+      }).catch((error) => {
         console.error("Logout failed:", error);
         alert("ログアウトに失敗しました。時間をおいて再度お試しください。");
-      }
+      });
     }
 
     input.addEventListener("keydown", (e) => {
@@ -887,25 +856,10 @@
       }
     });
 
-    firebase.auth().onAuthStateChanged(async (user) => {
-      try{
-        if(!user){
-          window.location.href = "/auth/login";
-          return;
-        }
-
-        currentUser = user;
-        uidText.textContent = user.uid;
-
-        await user.getIdToken(true);
-        await reloadThreads();
-        setMainStatus("準備OK（スレッドを選択してね）");
-      }catch(err){
-        console.error(err);
-        setMainStatus(`初期化失敗: ${err.message}`, true);
-        setSidebarStatus(`初期化失敗: ${err.message}`, true);
-      }
-    });
+    (async () => {
+      await reloadThreads();
+      setMainStatus("準備OK（スレッドを選択してね）");
+    })();
   </script>
 </body>
 </html>

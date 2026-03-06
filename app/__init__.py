@@ -61,4 +61,7 @@ def create_app():
     from app.chat import threads_bp
     app.register_blueprint(threads_bp, url_prefix="/threads")
 
+    from .ui import ui_bp
+    app.register_blueprint(ui_bp)
+
     return app
