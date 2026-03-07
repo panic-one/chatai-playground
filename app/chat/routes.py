@@ -1,6 +1,5 @@
 from flask import request, jsonify, render_template
 from . import threads_bp
-from app.extensions import db
 from app.auth.auth_services import verify_firebase_token
 from . import services
 
@@ -126,11 +125,13 @@ def list_messages(thread_id):
     if err:
         return jsonify({"error": str(err)}), 401
     
-    messages, e = services.list_messages(uid, thread_id)
+    limit = request.args.get("limit", type=int)
+    offset = request.args.get("offset", type=int)
+    messages, e = services.list_messages(uid, thread_id, limit=limit, offset=offset)
     if e:
         kind, _ = e
         if kind == "not found":
-            return jsonify({"error": "thread not found"}), 403
+            return jsonify({"error": "thread not found"}), 404
         if kind == "forbidden":
             return jsonify({"error": "forbidden"}), 403
         

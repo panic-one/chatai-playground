@@ -53,13 +53,13 @@ def create_app():
         return "ok"
 
     from .auth import auth_bp
-    app.register_blueprint(auth_bp, url_prefix="/auth")
+    app.register_blueprint(auth_bp)
     
     from .llm_change import llm_bp
-    app.register_blueprint(llm_bp, url_prefix="/llm") 
+    app.register_blueprint(llm_bp) 
 
     from app.chat import threads_bp
-    app.register_blueprint(threads_bp, url_prefix="/threads")
+    app.register_blueprint(threads_bp)
 
     from .ui import ui_bp
     app.register_blueprint(ui_bp)

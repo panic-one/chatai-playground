@@ -138,17 +138,17 @@ def run_ai_generation(app, message_id):
         if not ai:
             return
 
-    chunks = [
-        "考えています",
-        "回答中です",
-        "回答が完成しました",
-    ]
+        chunks = [
+            "考えています",
+            "回答中です",
+            "回答が完成しました",
+        ]
 
-    for c in chunks:
-        ai.content = (ai.content or "") + c
-        db.session.commit()
+        for c in chunks:
+            ai.content = (ai.content or "") + c
+            db.session.commit()
 
-        time.sleep(1)
+            time.sleep(1)
 
 def list_messages(uid, thread_id, limit=200, offset=0):
     _, e = ensure_thread_owner(uid, thread_id)

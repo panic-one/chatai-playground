@@ -97,8 +97,9 @@
             },
             credentials: "same-origin",
             body: JSON.stringify({ idToken: idToken })
-          });
-          window.location.href = "/chatai-playground";
+            });
+            window.location.href = "/chatai-playground";
+            return false
         }catch (error) {
           console.error("Login flow failed:", error);
           document.getElementById("debug").textContent =
