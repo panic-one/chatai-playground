@@ -4,10 +4,10 @@ from datetime import datetime
 class Thread(db.Model):
     __tablename__ = "threads"
 
-    thread_id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
+    thread_id = db.Column(db.BigInteger, primary_key=True)
+    title = db.Column(db.String(30), nullable=False)
     firebase_uid = db.Column(db.String(128), index=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
 
     messages = db.relationship("Message", backref="thread", cascade="all, delete")
 
