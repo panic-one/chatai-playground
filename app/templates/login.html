@@ -85,26 +85,29 @@
         console.log("FirebaseUI shown")
       },
 
-    signInSuccessWithAuthResult: function(authResult) {
-      authResult.user.getIdToken().then(function(idToken){
-        return fetch("/session", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          credentials: "same-origin",
-          body: JSON.stringify({ idToken: idToken})
-        }).then(() => {
-          window.location.href = "/home";
-        })
-        .catch((error) => {
-          console.error("Session creation failed:", error);
-          document.getElementById("debug").textContent = "Failed to create session. Please try again";
-        });
+      signInSuccessWithAuthResult: async function(authResult) {
+        try {
+          const idToken = await authResult.user.getIdToken();
 
-      });
-      return false;
-    },
+          // 既存の session 作成を残すならこれも実行
+          await fetch("/auth/session", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({ idToken: idToken })
+            });
+            window.location.href = "/chatai-playground";
+            return false
+        }catch (error) {
+          console.error("Login flow failed:", error);
+          document.getElementById("debug").textContent =
+            "ログイン後の画面遷移に失敗しました。\n" + (error.message || error);
+        }
+
+        return false;
+      },
 
       signInFailure: function(error) {
         console.error("FirebaseUI signInFailure:", error);
