@@ -581,6 +581,7 @@
       const meta = document.createElement("div");
       meta.className = "meta";
       const parts = [];
+      if(msg.status) parts.push("status: ${msg.status}");
       if(msg.model) parts.push(`model: ${msg.model}`);
       if(msg.message_index != null) parts.push(`#${msg.message_index}`);
       if(msg.created_at) parts.push(msg.created_at);
@@ -627,7 +628,7 @@
 
         const meta = document.createElement("p");
         meta.className = "meta";
-        meta.textContent = `id: ${tid}`;
+        meta.textContent = "チャット";
 
         textBox.appendChild(title);
         textBox.appendChild(meta);
@@ -691,7 +692,7 @@
     async function deleteThread(tid){
       if(!tid) return;
 
-      const ok = confirm(`このスレッド(id:${tid})を削除しますか？`);
+      const ok = confirm(`このスレッドを削除しますか？`);
       if(!ok) return;
 
       try{
@@ -760,9 +761,9 @@
 
         for(const m of msgs){
           appendMessage(m);
-          if((m.role || "ai") !== "user"){
+          if((m.role || "assistant") !== "user"){
             const mid = String(m.message_id ?? m.id ?? "");
-            if(mid && !shouldStopPolling(m.content || "")){
+            if(mid && !shouldStopPolling(m)){
               startAiPolling(String(tid), mid);
             }
           }
@@ -777,10 +778,8 @@
       }
     }
 
-    function shouldStopPolling(text){
-      return (text || "").includes("回答が完成しました");
-    }
-
+    function shouldStopPolling(msg){
+      return msg?.status === "completed" || msg?.status === "failed" || msg?.status === "cancelled";
     function startAiPolling(threadId, messageId){
       if(aiPollers.has(messageId)) return;
 
@@ -792,11 +791,13 @@
         try{
           const msg = await apiFetch(`${API_BASE}/${threadId}/messages/${messageId}`, { method: "GET" });
           const text = msg.content ?? "";
+
           if(text !== last){
             updateMessageContent(String(messageId), text);
             last = text;
           }
-          if(shouldStopPolling(text) || ticks > 240){
+
+          if(shouldStopPolling(msg) || ticks > 240){
             clearInterval(timer);
             aiPollers.delete(messageId);
           }
@@ -828,7 +829,7 @@
       }
 
       sendBtn.disabled = true;
-      setMainStatus("送信中…");
+      setMainStatus("AI応答を生成中...");
 
       try{
         appendMessage({ role: "user", content: text });
@@ -895,7 +896,7 @@
         setMainStatus(`初期化失敗: ${err.message}`, true);
         setSidebarStatus(`初期化失敗: ${err.message}`, true);
       }
-    });
+    });}
   </script>
 </body>
 </html>

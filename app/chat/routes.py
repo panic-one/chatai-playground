@@ -101,7 +101,7 @@ def post_message(thread_id):
     return jsonify({
         "user": user_msg.to_dict(),
         "ai": ai_msg.to_dict()
-    }), 201
+    }), 202
 
 
 @threads_bp.get("/<thread_id>/messages/<message_id>")
