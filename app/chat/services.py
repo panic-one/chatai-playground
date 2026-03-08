@@ -89,7 +89,7 @@ def create_user_message_and_ai(uid, thread_id, content):
 
         user_msg = Message(
             thread_id=thread_id,
-            role="user",
+            role="0",
             firebase_uid=uid,
             model=None,
             content=content,
@@ -100,7 +100,7 @@ def create_user_message_and_ai(uid, thread_id, content):
 
         ai_msg = Message(
             thread_id=thread_id,
-            role="assistant",
+            role="1",
             content="",
             firebase_uid=None,
             model="gpt-4o-mini", ##将来切り替える
