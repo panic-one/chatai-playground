@@ -7,7 +7,7 @@ class Message(db.Model):
     message_id = db.Column(db.BigInteger, primary_key=True)
     thread_id = db.Column(db.BigInteger, db.ForeignKey("threads.thread_id"), nullable=False)
     role = db.Column(db.Integer, nullable=False)
-    firebase_uid = db.Column(db.String(128), index=True)
+    firebase_uid = db.Column(db.String(28), index=True)
     model = db.Column(db.String(50))
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
