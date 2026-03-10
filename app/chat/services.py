@@ -5,7 +5,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 import threading, time
 from flask import current_app
-from flask import jsonify
+from app.llm.serveces import stream_ai_response
 
 JST = ZoneInfo("Asia/Tokyo")
  
