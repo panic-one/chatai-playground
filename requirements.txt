@@ -7,3 +7,4 @@ flask-Migrate
 tzdata
 openai
 google-generativeai
+anthropic
