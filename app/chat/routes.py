@@ -2,6 +2,7 @@ from flask import request, jsonify, g
 from . import threads_bp
 from app.auth.auth_services import verify_firebase_token
 from . import services
+from app.services import handle_error
 
 @threads_bp.before_request
 def authenticate():
@@ -26,7 +27,7 @@ def list_threads():
 @threads_bp.get("/<int:thread_id>")
 def get_thread(thread_id: int):
     th, e = services.get_thread(g.uid, thread_id)
-    err_res = services.handle_error(e, "thread not found")
+    err_res = handle_error(e, "thread not found")
     if err_res:
         return err_res
     return jsonify(th.to_dict()), 200
@@ -39,7 +40,7 @@ def update_title(thread_id: int):
         return jsonify({"error": "title is required"}), 400
     
     th, e = services.update_thread_title(g.uid, thread_id, new_title)
-    err_res = services.handle_error(e, "thread not found")
+    err_res = handle_error(e, "thread not found")
     if err_res:
         return err_res
         
@@ -48,7 +49,7 @@ def update_title(thread_id: int):
 @threads_bp.delete("/<int:thread_id>")
 def delete_thread(thread_id: int):
     ok, e = services.delete_thread(g.uid, thread_id)
-    err_res = services.handle_error(e, "thread not found")
+    err_res = handle_error(e, "thread not found")
     if err_res:
         return err_res
         
@@ -63,7 +64,7 @@ def post_message(thread_id: int):
         return jsonify({"error": "content is required"}), 400
     
     user_msg, ai_msg, e = services.create_user_message_and_ai(g.uid, thread_id, content)
-    err_res = services.handle_error(e, "messsage not found")
+    err_res = handle_error(e, "messsage not found")
     if err_res:
         return err_res
         
@@ -76,7 +77,7 @@ def post_message(thread_id: int):
 @threads_bp.get("/<int:thread_id>/messages/<int:message_id>")
 def get_message(thread_id: int, message_id: int):
     msg, e = services.get_message(g.uid, thread_id, message_id)
-    err_res = services.handle_error(e, "thread not found")
+    err_res = handle_error(e, "thread not found")
     if err_res:
         return err_res
     return jsonify(msg.to_dict()), 200
@@ -86,7 +87,7 @@ def list_messages(thread_id: int):
     limit = request.args.get("limit", type=int)
     offset = request.args.get("offset", type=int)
     messages, e = services.list_messages(g.uid, thread_id, limit=limit, offset=offset)
-    err_res = services.handle_error(e, "thread not found")
+    err_res = handle_error(e, "thread not found")
     if err_res:
         return err_res
         
