@@ -39,6 +39,18 @@ def create_app():
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
 
+    firebase_config = {
+        "apiKey": "AIzaSyBgpRpnqsvLDnWrgffQeEaU-2I5BFHPJTk",
+        "authDomain": "chatai-playground.firebaseapp.com",
+        "projectId": "chatai-playground",
+        "appId": "1:747369968863:web:75b240f4ca396c20bfe56a",
+        "messagingSenderId": "747369968863",
+    }
+    
+    @app.context_processor
+    def inject_firebase_config():
+        return {"firebase_config": firebase_config}
+    
     db.init_app(app)
     migrate.init_app(app, db)
 
