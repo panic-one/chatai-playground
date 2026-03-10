@@ -590,7 +590,7 @@
     }
 
     function roleLabel(role) {
-      if (role === 0 || role === "0" || role === "user") {
+      if (role === 0 || role === "user") {
         return { avatar: "You", css: "user" };
       }
       return { avatar: "AI", css: "ai" };
@@ -919,7 +919,7 @@
           appendMessage(m);
 
           const role = m.role;
-          const isUser = role === 0 || role === "0" || role === "user";
+          const isUser = role === 0 || role === "user";
           const mid = String(m.message_id ?? m.id ?? "");
 
           if (!isUser && mid && !shouldStopPolling(m)) {
