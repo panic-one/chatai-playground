@@ -6,3 +6,4 @@ psycopg2-binary
 flask-Migrate
 tzdata
 openai
+google-generativeai
