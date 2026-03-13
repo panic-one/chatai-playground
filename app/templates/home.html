@@ -26,12 +26,14 @@
     }
 
     *{ box-sizing: border-box; }
-    html,body{ height: 100%; }
+    html, body{ height: 100%; }
+
     body{
       margin:0;
-      background: radial-gradient(1200px 600px at 30% -10%, rgba(124,58,237,.25), transparent 55%),
-                  radial-gradient(900px 500px at 90% 10%, rgba(59,130,246,.20), transparent 55%),
-                  var(--bg);
+      background:
+        radial-gradient(1200px 600px at 30% -10%, rgba(124,58,237,.25), transparent 55%),
+        radial-gradient(900px 500px at 90% 10%, rgba(59,130,246,.20), transparent 55%),
+        var(--bg);
       color: var(--text);
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
       overflow: hidden;
@@ -62,8 +64,10 @@
       background: rgba(255,255,255,.03);
       box-shadow: var(--shadow);
     }
+
     .logo{
-      width: 34px; height: 34px;
+      width: 34px;
+      height: 34px;
       border-radius: 10px;
       background: linear-gradient(135deg, rgba(124,58,237,.95), rgba(59,130,246,.95));
       display:grid;
@@ -72,11 +76,13 @@
       color: white;
       user-select: none;
     }
+
     .brand h1{
       margin:0;
       font-size: 14px;
       letter-spacing: .2px;
     }
+
     .brand p{
       margin:2px 0 0;
       font-size: 12px;
@@ -87,6 +93,7 @@
       display:flex;
       gap:10px;
     }
+
     .btn{
       appearance: none;
       border: 1px solid var(--border);
@@ -99,16 +106,26 @@
       font-size: 13px;
       width: 100%;
     }
-    .btn:hover{ opacity: .92; background: rgba(255,255,255,.06); }
-    .btn:active{ transform: translateY(1px); }
+
+    .btn:hover{
+      opacity: .92;
+      background: rgba(255,255,255,.06);
+    }
+
+    .btn:active{
+      transform: translateY(1px);
+    }
+
     .btn.primary{
       border-color: rgba(124,58,237,.55);
       background: rgba(124,58,237,.18);
     }
+
     .btn.danger{
       border-color: rgba(239,68,68,.5);
       background: rgba(239,68,68,.12);
     }
+
     .btn.small{
       padding: 8px 10px;
       font-size: 12px;
@@ -133,6 +150,7 @@
       overflow: auto;
       padding-right: 4px;
     }
+
     .chat-item{
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -141,11 +159,16 @@
       cursor: pointer;
       transition: background .15s ease, border-color .15s ease;
     }
-    .chat-item:hover{ background: rgba(255,255,255,.05); }
+
+    .chat-item:hover{
+      background: rgba(255,255,255,.05);
+    }
+
     .chat-item.active{
       border-color: rgba(124,58,237,.55);
       background: rgba(124,58,237,.10);
     }
+
     .chat-item .title{
       font-size: 13px;
       margin:0 0 2px;
@@ -153,6 +176,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
     .chat-item .meta{
       font-size: 12px;
       margin:0;
@@ -162,34 +186,22 @@
       text-overflow: ellipsis;
     }
 
-    .sidebar-footer{
-      margin-top: auto;
-      border-top: 1px solid var(--border);
-      padding-top: 12px;
-      color: var(--muted);
-      font-size: 12px;
-      display:flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .uid{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      color: rgba(255,255,255,.78);
-      word-break: break-all;
-      line-height: 1.3;
-    }
     .status{
       font-size: 12px;
       color: var(--muted2);
       min-height: 16px;
     }
-    .status.err{ color: rgba(239,68,68,.9); }
+
+    .status.err{
+      color: rgba(239,68,68,.9);
+    }
 
     .main{
       display:flex;
       flex-direction: column;
       height: 100%;
       min-width: 0;
+      min-height: 0;
     }
 
     .topbar{
@@ -202,6 +214,7 @@
       background: rgba(255,255,255,.02);
       backdrop-filter: blur(8px);
     }
+
     .topbar .title{
       font-size: 14px;
       color: var(--muted);
@@ -211,6 +224,7 @@
       gap:10px;
       min-width:0;
     }
+
     .pill{
       font-size: 12px;
       padding: 4px 8px;
@@ -220,6 +234,7 @@
       color: var(--muted);
       white-space: nowrap;
     }
+
     .thread-title{
       color: rgba(255,255,255,.86);
       font-weight: 600;
@@ -231,9 +246,11 @@
 
     .chat{
       flex: 1;
-      overflow: auto;
+      min-height: 0;
+      overflow-y: auto;
       padding: 18px 18px 10px;
     }
+
     .chat-inner{
       max-width: 920px;
       margin: 0 auto;
@@ -247,8 +264,10 @@
       gap: 10px;
       align-items:flex-start;
     }
+
     .avatar{
-      width: 34px; height: 34px;
+      width: 34px;
+      height: 34px;
       border-radius: 12px;
       border: 1px solid var(--border);
       background: rgba(255,255,255,.04);
@@ -259,6 +278,7 @@
       flex: 0 0 auto;
       user-select:none;
     }
+
     .bubble{
       border: 1px solid var(--border);
       border-radius: 16px;
@@ -269,8 +289,15 @@
       white-space: pre-wrap;
       word-break: break-word;
     }
-    .bubble.ai{ background: var(--bubble-ai); }
-    .bubble.user{ background: var(--bubble-user); }
+
+    .bubble.ai{
+      background: var(--bubble-ai);
+    }
+
+    .bubble.user{
+      background: var(--bubble-user);
+    }
+
     .bubble .meta{
       margin-top: 6px;
       font-size: 11px;
@@ -282,6 +309,7 @@
       background: rgba(255,255,255,.02);
       padding: 12px 14px;
     }
+
     .composer-inner{
       max-width: 920px;
       margin: 0 auto;
@@ -289,6 +317,7 @@
       gap: 10px;
       align-items:flex-end;
     }
+
     textarea{
       width: 100%;
       resize: none;
@@ -303,10 +332,12 @@
       font-size: 14px;
       line-height: 1.4;
     }
+
     textarea:focus{
       border-color: rgba(124,58,237,.55);
       box-shadow: 0 0 0 3px rgba(124,58,237,.18);
     }
+
     .send{
       flex: 0 0 auto;
       padding: 12px 14px;
@@ -317,10 +348,12 @@
       cursor:pointer;
       min-width: 70px;
     }
+
     .send[disabled]{
       opacity:.55;
       cursor:not-allowed;
     }
+
     .hint{
       max-width: 920px;
       margin: 8px auto 0;
@@ -330,13 +363,6 @@
       display:flex;
       justify-content: space-between;
       gap: 12px;
-    }
-
-    @media (max-width: 860px){
-      body{ overflow:auto; }
-      .app{ grid-template-columns: 1fr; }
-      .sidebar{ display:none; }
-      .main{ height: 100svh; }
     }
 
     .thread-row{
@@ -370,12 +396,29 @@
       transition: opacity .15s ease, background .15s ease, transform .08s ease;
     }
 
-    .icon-btn:hover{ opacity:.92; background: rgba(255,255,255,.06); }
-    .icon-btn:active{ transform: translateY(1px); }
+    .icon-btn:hover{
+      opacity:.92;
+      background: rgba(255,255,255,.06);
+    }
+
+    .icon-btn:active{
+      transform: translateY(1px);
+    }
 
     .icon-btn.danger{
       border-color: rgba(239,68,68,.5);
       background: rgba(239,68,68,.10);
+    }
+
+    @media (max-width: 860px){
+      body{ overflow:auto; }
+      .app{ grid-template-columns: 1fr; }
+      .sidebar{ display:none; }
+      .main{
+        height: 100vh;
+        display:flex;
+        flex-direction:column;
+      }
     }
   </style>
 </head>
@@ -392,12 +435,12 @@
       </div>
 
       <div class="sidebar-actions">
-        <button class="btn primary" onclick="newChat()">＋ 新しいチャット</button>
+        <button class="btn primary" type="button" onclick="newChat()">＋ 新しいチャット</button>
       </div>
 
       <div class="sidebar-actions">
-        <button class="btn" onclick="reloadThreads()">更新</button>
-        <button class="btn danger" onclick="logout()">ログアウト</button>
+        <button class="btn" type="button" onclick="reloadThreads()">更新</button>
+        <button class="btn danger" type="button" onclick="logout()">ログアウト</button>
       </div>
 
       <div class="section-title">
@@ -406,9 +449,7 @@
       </div>
 
       <div class="chat-list" id="chatList"></div>
-
       <div class="status" id="sidebarStatus"></div>
-
     </aside>
 
     <main class="main">
@@ -418,7 +459,7 @@
           <span class="thread-title" id="threadTitle"></span>
         </p>
         <div style="display:flex; gap:10px;">
-          <button class="btn small" onclick="clearChat()">クリア</button>
+          <button class="btn small" type="button" onclick="clearCurrentChatView()">クリア</button>
         </div>
       </header>
 
@@ -437,7 +478,7 @@
       <footer class="composer">
         <div class="composer-inner">
           <textarea id="input" placeholder="メッセージを入力… (Enterで送信 / Shift+Enterで改行)"></textarea>
-          <button class="send" id="sendBtn" onclick="send()">送信</button>
+          <button class="send" id="sendBtn" type="button" onclick="send()">送信</button>
         </div>
         <div class="hint">
           <span id="mainStatus">準備中…</span>
@@ -457,17 +498,15 @@
     );
 
     if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
+      firebase.initializeApp(firebaseConfig);
     } else {
-        firebase.app();
+      firebase.app();
     }
-  </script>
 
-  <script>
     const API_BASE = "/threads";
 
-    const chatInner = document.getElementById("chatInner");
     const chat = document.getElementById("chat");
+    const chatInner = document.getElementById("chatInner");
     const input = document.getElementById("input");
     const sendBtn = document.getElementById("sendBtn");
 
@@ -475,31 +514,35 @@
     const threadCount = document.getElementById("threadCount");
     const sidebarStatus = document.getElementById("sidebarStatus");
     const mainStatus = document.getElementById("mainStatus");
-
     const threadTitleEl = document.getElementById("threadTitle");
 
     let currentThread = null;
     let currentUser = null;
     const aiPollers = new Map();
 
-    function scrollToBottom(){
+    function scrollToBottom() {
       chat.scrollTop = chat.scrollHeight;
     }
 
-    function setSidebarStatus(text, isErr=false){
+    function setSidebarStatus(text, isErr = false) {
       sidebarStatus.textContent = text || "";
       sidebarStatus.classList.toggle("err", !!isErr);
     }
 
-    function setMainStatus(text, isErr=false){
+    function setMainStatus(text, isErr = false) {
       mainStatus.textContent = text || "";
-      mainStatus.style.color = isErr ? "rgba(239,68,68,.9)" : "rgba(255,255,255,.55)";
+      mainStatus.style.color = isErr
+        ? "rgba(239,68,68,.9)"
+        : "rgba(255,255,255,.55)";
     }
 
-    function safeJson(res){
-      return res.text().then(t => {
-        try { return t ? JSON.parse(t) : {}; }
-        catch { return { _raw: t }; }
+    function safeJson(res) {
+      return res.text().then((t) => {
+        try {
+          return t ? JSON.parse(t) : {};
+        } catch {
+          return { _raw: t };
+        }
       });
     }
 
@@ -509,30 +552,39 @@
       if(cachedToken) return cachedToken;
 
       const user = firebase.auth().currentUser;
-      if(!user){
+      if (!user) {
         throw new Error("Firebase user not found");
       }
       cachedToken = await user.getIdToken();
       return cachedToken;
     }
 
-    async function apiFetch(path, options = {}){
+    async function apiFetch(path, options = {}) {
       const token = await getIdToken();
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        ...(options.headers || {}),
+      };
+
+      if (!(options.body instanceof FormData)) {
+        headers["Content-Type"] = "application/json";
+      }
 
       const res = await fetch(path, {
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-          ...(options.headers || {}),
-        },
         ...options,
+        headers,
       });
 
       const body = await safeJson(res);
 
-      if(!res.ok){
-        const msg = body?.error || body?.message || res.statusText || "Request failed";
+      if (!res.ok) {
+        const msg =
+          body?.error ||
+          body?.message ||
+          res.statusText ||
+          "Request failed";
         const err = new Error(msg);
         err.status = res.status;
         err.body = body;
@@ -542,37 +594,57 @@
       return body;
     }
 
-    function roleLabel(role){
-      if(role === "user") return { avatar: "You", css: "user" };
+    function roleLabel(role) {
+      if (role === 0 || role === "user") {
+        return { avatar: "You", css: "user" };
+      }
       return { avatar: "AI", css: "ai" };
     }
 
-    function clearChat(){
-      chatInner.innerHTML = "";
-      stopAllPollers();
-    }
-
-    function stopAllPollers(){
-      for(const [mid, timer] of aiPollers.entries()){
+    function stopAllPollers() {
+      for (const [mid, timer] of aiPollers.entries()) {
         clearInterval(timer);
         aiPollers.delete(mid);
       }
     }
 
-    function appendMessage(msg){
-      const role = msg.role || "ai";
+    function clearChatOnly() {
+      chatInner.innerHTML = "";
+    }
+
+    function clearCurrentChatView() {
+      stopAllPollers();
+      clearChatOnly();
+
+      if (currentThread) {
+        appendMessage({
+          role: "ai",
+          content: "表示だけクリアしました。スレッドを再選択すると再読み込みできます。"
+        });
+      } else {
+        appendMessage({
+          role: "ai",
+          content: "左の「＋ 新しいチャット」からスレッドを作って、メッセージを送ってみて。"
+        });
+      }
+    }
+
+    function appendMessage(msg) {
+      const role = msg.role ?? "ai";
       const text = msg.content ?? "";
-      const { avatar: av, css } = roleLabel(role);
+      const { avatar, css } = roleLabel(role);
 
       const wrap = document.createElement("div");
       wrap.className = "msg";
 
       const mid = String(msg.message_id ?? msg.id ?? "");
-      if(mid) wrap.dataset.messageId = mid;
+      if (mid) {
+        wrap.dataset.messageId = mid;
+      }
 
-      const avatar = document.createElement("div");
-      avatar.className = "avatar";
-      avatar.textContent = av;
+      const avatarEl = document.createElement("div");
+      avatarEl.className = "avatar";
+      avatarEl.textContent = avatar;
 
       const bubble = document.createElement("div");
       bubble.className = "bubble " + css;
@@ -585,38 +657,91 @@
 
       const meta = document.createElement("div");
       meta.className = "meta";
+
       const parts = [];
-      if(msg.model) parts.push(`model: ${msg.model}`);
-      if(msg.message_index != null) parts.push(`#${msg.message_index}`);
-      if(msg.created_at) parts.push(msg.created_at);
-      if(parts.length){
+      if (msg.status) parts.push(`status: ${msg.status}`);
+      if (msg.model) parts.push(`model: ${msg.model}`);
+      if (msg.message_index != null) parts.push(`#${msg.message_index}`);
+      if (msg.created_at) parts.push(msg.created_at);
+
+      if (parts.length) {
         meta.textContent = parts.join(" / ");
         bubble.appendChild(meta);
       }
 
-      wrap.appendChild(avatar);
+      wrap.appendChild(avatarEl);
       wrap.appendChild(bubble);
       chatInner.appendChild(wrap);
+
       scrollToBottom();
     }
 
-    function updateMessageContent(messageId, newText){
-      const el = chatInner.querySelector(`.msg[data-message-id="${CSS.escape(messageId)}"] .bubble .content`);
-      if(el) el.textContent = newText ?? "";
+    function updateMessageContent(messageId, newText) {
+      const selector = `.msg[data-message-id="${CSS.escape(messageId)}"] .bubble .content`;
+      const el = chatInner.querySelector(selector);
+      if (el) {
+        el.textContent = newText ?? "";
+      }
       scrollToBottom();
     }
 
-    function renderThreadList(threads){
+    function shouldStopPolling(msg) {
+      return (
+        msg?.status === "completed" ||
+        msg?.status === "failed" ||
+        msg?.status === "cancelled"
+      );
+    }
+
+    function startAiPolling(threadId, messageId) {
+      if (!threadId || !messageId) return;
+      if (aiPollers.has(messageId)) return;
+
+      let last = null;
+      let ticks = 0;
+
+      const timer = setInterval(async () => {
+        ticks += 1;
+
+        try {
+          const msg = await apiFetch(`${API_BASE}/${threadId}/messages/${messageId}`, {
+            method: "GET",
+          });
+
+          const text = msg.content ?? "";
+          if (text !== last) {
+            updateMessageContent(String(messageId), text);
+            last = text;
+          }
+
+          if (shouldStopPolling(msg) || ticks > 240) {
+            clearInterval(timer);
+            aiPollers.delete(messageId);
+          }
+        } catch (err) {
+          console.warn("poll error:", err.message);
+          if (ticks > 240) {
+            clearInterval(timer);
+            aiPollers.delete(messageId);
+          }
+        }
+      }, 700);
+
+      aiPollers.set(messageId, timer);
+    }
+
+    function renderThreadList(threads) {
       chatList.innerHTML = "";
       threadCount.textContent = String(threads.length);
 
-      threads.forEach(th => {
+      for (const th of threads) {
         const item = document.createElement("div");
         item.className = "chat-item";
 
         const tid = th.thread_id ?? th.id;
+        const curId = currentThread?.thread_id ?? currentThread?.id ?? null;
 
-        if(currentThread && (currentThread.thread_id ?? currentThread.id) === tid){
+        if (curId && String(curId) === String(tid)) {
           item.classList.add("active");
         }
 
@@ -632,7 +757,7 @@
 
         const meta = document.createElement("p");
         meta.className = "meta";
-        meta.textContent = `id: ${tid}`;
+        meta.textContent = "チャット";
 
         textBox.appendChild(title);
         textBox.appendChild(meta);
@@ -658,186 +783,187 @@
         item.appendChild(row);
 
         item.addEventListener("click", async () => {
-          [...chatList.querySelectorAll(".chat-item")].forEach(x => x.classList.remove("active"));
+          [...chatList.querySelectorAll(".chat-item")].forEach((x) => {
+            x.classList.remove("active");
+          });
           item.classList.add("active");
           await selectThread(th);
         });
 
         chatList.appendChild(item);
-      });
+      }
 
-      if(!threads.length){
+      if (!threads.length) {
         const empty = document.createElement("div");
         empty.className = "chat-item";
         empty.style.opacity = "0.8";
-        empty.innerHTML = `<p class="title">スレッドがありません</p><p class="meta">「＋ 新しいチャット」で作成できます</p>`;
+        empty.innerHTML = `
+          <p class="title">スレッドがありません</p>
+          <p class="meta">「＋ 新しいチャット」で作成できます</p>
+        `;
         chatList.appendChild(empty);
       }
     }
 
-    async function reloadThreads(){
-      try{
+    async function reloadThreads() {
+      try {
         setSidebarStatus("スレッド取得中…");
+
         const data = await apiFetch(API_BASE, { method: "GET" });
 
-        if(!Array.isArray(data)){
+        if (!Array.isArray(data)) {
           console.error("threads response:", data);
           throw new Error("スレッド一覧の形式が不正です");
         }
 
         renderThreadList(data);
         setSidebarStatus("");
-      }catch(err){
+      } catch (err) {
         console.error(err);
         setSidebarStatus(`取得失敗: ${err.message}`, true);
       }
     }
 
-    async function deleteThread(tid){
-      if(!tid) return;
+    async function deleteThread(tid) {
+      if (!tid) return;
 
-      const ok = confirm(`このスレッド(id:${tid})を削除しますか？`);
-      if(!ok) return;
+      const ok = confirm("このスレッドを削除しますか？");
+      if (!ok) return;
 
-      try{
+      try {
         setSidebarStatus("削除中…");
-        await apiFetch(`${API_BASE}/${tid}`, { method: "DELETE" });
 
-        const curId = currentThread ? (currentThread.thread_id ?? currentThread.id) : null;
-        if(curId === tid){
+        await apiFetch(`${API_BASE}/${tid}`, {
+          method: "DELETE",
+        });
+
+        const curId = currentThread?.thread_id ?? currentThread?.id ?? null;
+        if (curId && String(curId) === String(tid)) {
           currentThread = null;
           threadTitleEl.textContent = "";
-          clearChat();
-          appendMessage({ role:"ai", content:"スレッドを削除しました。左から別のスレッドを選んでね。" });
+          stopAllPollers();
+          clearChatOnly();
+          appendMessage({
+            role: "ai",
+            content: "スレッドを削除しました。左から別のスレッドを選んでね。"
+          });
           setMainStatus("準備OK（スレッドを選択してね）");
         }
 
         await reloadThreads();
         setSidebarStatus("");
-      }catch(err){
+      } catch (err) {
         console.error(err);
         setSidebarStatus(`削除失敗: ${err.message}`, true);
         alert(`削除に失敗: ${err.message}`);
       }
     }
 
-    async function newChat(){
-      try{
+    async function newChat() {
+      try {
         setSidebarStatus("作成中…");
+
         const th = await apiFetch(API_BASE, {
           method: "POST",
           body: JSON.stringify({ title: "" }),
         });
+
         await reloadThreads();
         await selectThread(th);
+
         setSidebarStatus("");
-      }catch(err){
+      } catch (err) {
         console.error(err);
         setSidebarStatus(`作成失敗: ${err.message}`, true);
       }
     }
 
-    async function selectThread(th){
+    async function selectThread(th) {
       currentThread = th;
+
       const tid = th.thread_id ?? th.id;
-      
+      if (!tid) {
+        setMainStatus("thread_id が見つかりません", true);
+        return;
+      }
+
       threadTitleEl.textContent = th?.title ? `— ${th.title}` : "";
 
-      clearChat();
+      stopAllPollers();
+      clearChatOnly();
       appendMessage({ role: "ai", content: "履歴を読み込み中…" });
 
-      try{
+      try {
         setMainStatus("履歴取得中…");
-        const msgs = await apiFetch(`${API_BASE}/${tid}/messages?limit=200&offset=0`, { method: "GET" });
 
-        clearChat();
-        if(!Array.isArray(msgs) || msgs.length === 0){
-          appendMessage({ role: "ai", content: "このスレッドはまだメッセージがありません。下から送ってみて。" });
+        const msgs = await apiFetch(`${API_BASE}/${tid}/messages?limit=200&offset=0`, {
+          method: "GET",
+        });
+
+        clearChatOnly();
+
+        if (!Array.isArray(msgs) || msgs.length === 0) {
+          appendMessage({
+            role: "ai",
+            content: "このスレッドはまだメッセージがありません。下から送ってみて。"
+          });
           setMainStatus("準備OK");
           return;
         }
 
-        msgs.sort((a,b) => {
+        msgs.sort((a, b) => {
           const diff = (a.message_index ?? 0) - (b.message_index ?? 0);
-          if(diff !== 0) return diff;
-          return (a.message_id ?? 0) - (b.message_id ?? 0);
+          if (diff !== 0) return diff;
+
+          const aid = String(a.message_id ?? a.id ?? "");
+          const bid = String(b.message_id ?? b.id ?? "");
+          return aid.localeCompare(bid);
         });
 
-        for(const m of msgs){
+        for (const m of msgs) {
           appendMessage(m);
-          if((m.role || "ai") !== "user"){
-            const mid = String(m.message_id ?? m.id ?? "");
-            if(mid && !shouldStopPolling(m.content || "")){
-              startAiPolling(String(tid), mid);
-            }
+
+          const role = m.role;
+          const isUser = role === 0 || role === "user";
+          const mid = String(m.message_id ?? m.id ?? "");
+
+          if (!isUser && mid && !shouldStopPolling(m)) {
+            startAiPolling(String(tid), mid);
           }
         }
 
         setMainStatus("準備OK");
-      }catch(err){
+      } catch (err) {
         console.error(err);
-        clearChat();
-        appendMessage({ role: "ai", content: `履歴取得に失敗: ${err.message}` });
+        clearChatOnly();
+        appendMessage({
+          role: "ai",
+          content: `履歴取得に失敗: ${err.message}`
+        });
         setMainStatus(`履歴取得失敗: ${err.message}`, true);
       }
     }
 
-    function shouldStopPolling(text){
-      return (text || "").includes("回答が完成しました");
-    }
-
-    function startAiPolling(threadId, messageId){
-      if(aiPollers.has(messageId)) return;
-
-      let last = null;
-      let ticks = 0;
-
-      const timer = setInterval(async () => {
-        ticks += 1;
-        try{
-          const msg = await apiFetch(`${API_BASE}/${threadId}/messages/${messageId}`, { method: "GET" });
-          const text = msg.content ?? "";
-          if(text !== last){
-            updateMessageContent(String(messageId), text);
-            last = text;
-          }
-          if(shouldStopPolling(text) || ticks > 240){
-            clearInterval(timer);
-            aiPollers.delete(messageId);
-          }
-        }catch(err){
-          console.warn("poll error:", err.message);
-          if(ticks > 240){
-            clearInterval(timer);
-            aiPollers.delete(messageId);
-          }
-        }
-      }, 700);
-
-      aiPollers.set(messageId, timer);
-    }
-
-    async function send(){
+    async function send() {
       const text = input.value.trim();
-      if(!text) return;
+      if (!text) return;
 
-      if(!currentThread){
+      if (!currentThread) {
         alert("先にスレッドを作って選択してね（左の＋）");
         return;
       }
 
       const tid = currentThread.thread_id ?? currentThread.id;
-      if(!tid){
-        alert("thread_id が取れない…");
+      if (!tid) {
+        alert("thread_id が取れません");
         return;
       }
 
       sendBtn.disabled = true;
-      setMainStatus("送信中…");
+      setMainStatus("AI応答を生成中…");
 
-      try{
+      try {
         appendMessage({ role: "user", content: text });
-
         input.value = "";
         scrollToBottom();
 
@@ -846,46 +972,52 @@
           body: JSON.stringify({ content: text }),
         });
 
-        const ai = res.ai;
-        if(ai){
+        if (res?.thread && (res.thread.title || res.thread.thread_id || res.thread.id)) {
+          currentThread = res.thread;
+          threadTitleEl.textContent = res.thread.title ? `— ${res.thread.title}` : threadTitleEl.textContent;
+        }
+
+        const ai = res?.ai;
+        if (ai) {
           appendMessage(ai);
 
           const mid = String(ai.message_id ?? ai.id ?? "");
-          if(mid){
+          if (mid) {
             startAiPolling(String(tid), mid);
           }
         }
 
+        await reloadThreads();
         setMainStatus("送信完了");
-      }catch(err){
+      } catch (err) {
         console.error(err);
         setMainStatus(`送信失敗: ${err.message}`, true);
         alert(`送信に失敗: ${err.message}`);
-      }finally{
+      } finally {
         sendBtn.disabled = false;
       }
     }
 
-    async function logout(){
-      try{
+    async function logout() {
+      try {
         await firebase.auth().signOut();
         window.location.href = "/auth/login";
-      }catch(error){
+      } catch (error) {
         console.error("Logout failed:", error);
         alert("ログアウトに失敗しました。時間をおいて再度お試しください。");
       }
     }
 
     input.addEventListener("keydown", (e) => {
-      if(e.key === "Enter" && !e.shiftKey){
+      if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         send();
       }
     });
 
     firebase.auth().onAuthStateChanged(async (user) => {
-      try{
-        if(!user){
+      try {
+        if (!user) {
           window.location.href = "/auth/login";
           return;
         }
@@ -895,7 +1027,7 @@
         await user.getIdToken();
         await reloadThreads();
         setMainStatus("準備OK（スレッドを選択してね）");
-      }catch(err){
+      } catch (err) {
         console.error(err);
         setMainStatus(`初期化失敗: ${err.message}`, true);
         setSidebarStatus(`初期化失敗: ${err.message}`, true);

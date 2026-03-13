@@ -1,138 +1,94 @@
-from flask import request, jsonify, render_template
+from flask import request, jsonify, g
 from . import threads_bp
 from app.auth.auth_services import verify_firebase_token
 from . import services
+from app.services import handle_error
 
-@threads_bp.post("")
-def create_thread():
+@threads_bp.before_request
+def authenticate():
     uid, err = verify_firebase_token()
     if err:
         return jsonify({"error": str(err)}), 401
-    
+    g.uid = uid
 
+@threads_bp.post("")
+def create_thread():
     payload = request.get_json(silent=True) or {}
     title = payload.get("title")
 
-    th = services.create_thread(uid, title)
+    th = services.create_thread(g.uid, title)
     return jsonify(th.to_dict()), 201
 
 @threads_bp.get("")
 def list_threads():
-    uid, err = verify_firebase_token()
-    if err:
-        return jsonify({"error": str(err)}), 401
-    
-    threads = services.list_threads(uid)
+    threads = services.list_threads(g.uid)
     return jsonify([t.to_dict() for t in threads]), 200
 
-@threads_bp.get("/<thread_id>")
+@threads_bp.get("/<int:thread_id>")
 def get_thread(thread_id: int):
-    uid, err = verify_firebase_token()
-    if err:
-        return jsonify({"error": str(err)}), 401
-    
-    th, e = services.get_thread(uid, thread_id)
-    if e:
-        kind, _ = e
-        if kind == "not found":
-            return jsonify({"error": "thread not found"}), 404
-        if kind == "forbidden":
-            return jsonify({"error": "forbidden"}), 403
-        
+    th, e = services.get_thread(g.uid, thread_id)
+    err_res = handle_error(e, "thread not found")
+    if err_res:
+        return err_res
     return jsonify(th.to_dict()), 200
 
-@threads_bp.patch("/<thread_id>")
+@threads_bp.patch("/<int:thread_id>")
 def update_title(thread_id: int):
-    uid, err = verify_firebase_token()
-    if err:
-        return jsonify({"error": str(err)}), 401
-    
     payload = request.get_json(silent=True) or {}
     new_title = (payload.get("title") or "").strip()
     if not new_title:
         return jsonify({"error": "title is required"}), 400
     
-    th, e = services.update_thread_title(uid, thread_id, new_title)
-    if e:
-        kind, _ = e
-        if kind == "not found":
-            return jsonify({"error": "thread not found"}), 404
-        if kind == "forbidden":
-            return jsonify({"error": "forbidden"}), 403
+    th, e = services.update_thread_title(g.uid, thread_id, new_title)
+    err_res = handle_error(e, "thread not found")
+    if err_res:
+        return err_res
         
     return  jsonify(th.to_dict()), 200
 
-@threads_bp.delete("/<thread_id>")
+@threads_bp.delete("/<int:thread_id>")
 def delete_thread(thread_id: int):
-    uid, err = verify_firebase_token()
-    if err:
-        return jsonify({"error": str(err)}), 401
-    
-    ok, e = services.delete_thread(uid, thread_id)
-    if e:
-        kind, _ = e
-        if kind == "not found":
-            return jsonify({"error": "thread not found"}), 404
-        if kind == "forbidden":
-            return jsonify({"error": "forbidden"}), 403
+    ok, e = services.delete_thread(g.uid, thread_id)
+    err_res = handle_error(e, "thread not found")
+    if err_res:
+        return err_res
         
     return jsonify({"deleted": True, "id": thread_id}), 200
 
-@threads_bp.post("/<thread_id>/messages")
-def post_message(thread_id):
-    uid, err = verify_firebase_token()
-    if err:
-        return jsonify({"error": str(err)}), 401
-    
+@threads_bp.post("/<int:thread_id>/messages")
+def post_message(thread_id: int):
     payload = request.get_json(silent=True) or {}
     content = (payload.get("content") or "").strip()
 
     if not content:
         return jsonify({"error": "content is required"}), 400
     
-    user_msg, ai_msg, e = services.create_user_message_and_ai(uid, thread_id, content)
-    if e:
-        kind, _ = e
-        if kind == "not found":
-            return jsonify({"error": "thread not found"}), 404
-        if kind == "forbidden":
-            return jsonify({"error": "forbidden"}), 403
+    user_msg, ai_msg, e = services.create_user_message_and_ai(g.uid, thread_id, content)
+    err_res = handle_error(e, "messsage not found")
+    if err_res:
+        return err_res
         
     return jsonify({
         "user": user_msg.to_dict(),
         "ai": ai_msg.to_dict()
-    }), 201
+    }), 202
 
 
-@threads_bp.get("/<thread_id>/messages/<message_id>")
-def get_message(thread_id, message_id):
-    uid, err = verify_firebase_token()
-    if err:
-        return jsonify({"error": str(err)}), 401
-    
-    msg, e = services.get_message(uid, thread_id, message_id)
-    if e:
-        kind, _ = e
-        if kind == "not found":
-            return jsonify({"error": "message not found"}), 404
-        if kind == "forbidden":
-            return jsonify({"error": "forbidden"}), 403
+@threads_bp.get("/<int:thread_id>/messages/<int:message_id>")
+def get_message(thread_id: int, message_id: int):
+    msg, e = services.get_message(g.uid, thread_id, message_id)
+    err_res = handle_error(e, "thread not found")
+    if err_res:
+        return err_res
     return jsonify(msg.to_dict()), 200
 
-@threads_bp.get("/<thread_id>/messages")
-def list_messages(thread_id):
-    uid, err = verify_firebase_token()
-    if err:
-        return jsonify({"error": str(err)}), 401
-    
+@threads_bp.get("/<int:thread_id>/messages")
+def list_messages(thread_id: int):
     limit = request.args.get("limit", type=int)
     offset = request.args.get("offset", type=int)
-    messages, e = services.list_messages(uid, thread_id, limit=limit, offset=offset)
-    if e:
-        kind, _ = e
-        if kind == "not found":
-            return jsonify({"error": "thread not found"}), 404
-        if kind == "forbidden":
-            return jsonify({"error": "forbidden"}), 403
+    messages, e = services.list_messages(g.uid, thread_id, limit=limit, offset=offset)
+    err_res = handle_error(e, "thread not found")
+    if err_res:
+        return err_res
         
     return jsonify([m.to_dict() for m in messages]), 200

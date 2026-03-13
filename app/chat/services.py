@@ -5,9 +5,10 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 import threading, time
 from flask import current_app
+from app.llm.services import stream_ai_response
 
 JST = ZoneInfo("Asia/Tokyo")
-
+ 
 def create_thread(uid, title):
     title = (title or "").strip()
     if not title:
@@ -78,36 +79,43 @@ def next_message_index(thread_id: int) -> int:
     return (last or 0) + 1
 
 def create_user_message_and_ai(uid, thread_id, content):
-    _, e = ensure_thread_owner(uid, thread_id)
-    if e:
-        return None, None, e
+    _, err = ensure_thread_owner(uid, thread_id)
+    if err:
+        return None, None, err
     
-    now = datetime.now(JST)
-    user_msg = Message(
-        thread_id=thread_id,
-        role="user",
-        firebase_uid=uid,
-        model=None,
-        content=content,
-        created_at=now,
-        message_index=next_message_index(thread_id),
-    )
+    try:
+        now = datetime.now(JST)
+        base_index = next_message_index(thread_id)
 
-    db.session.add(user_msg)
-    db.session.flush()
+        user_msg = Message(
+            thread_id=thread_id,
+            role=0,
+            firebase_uid=uid,
+            model=None,
+            content=content,
+            created_at=now,
+            message_index=base_index,
+        )
 
-    ai_msg = Message(
-        thread_id=thread_id,
-        role="ai",
-        content="",
-        firebase_uid=None,
-        model="gpt-4o-mini", ##将来切り替える
-        created_at=now,
-        message_index=next_message_index(thread_id),
-    )
 
-    db.session.add(ai_msg)
-    db.session.commit()
+        ai_msg = Message(
+            thread_id=thread_id,
+            role=1,
+            content="",
+            firebase_uid=None,
+            model="gpt-4o-mini", ##将来切り替える
+            created_at=now,
+            message_index=base_index + 1,
+            status="genetating"
+        )
+
+        db.session.add(user_msg)
+        db.session.add(ai_msg)
+        db.session.commit()
+
+    except Exception:
+        db.session.rollback()
+        raise
 
     app = current_app._get_current_object()
     threading.Thread(
@@ -119,9 +127,9 @@ def create_user_message_and_ai(uid, thread_id, content):
     return user_msg, ai_msg, None
 
 def get_message(uid, thread_id, message_id):
-    _, e = ensure_thread_owner(uid, thread_id)
-    if e:
-        return None, e
+    _, err = ensure_thread_owner(uid, thread_id)
+    if err:
+        return None, err
     
     msg = Message.query.filter_by(
         message_id=message_id,
@@ -137,23 +145,43 @@ def run_ai_generation(app, message_id):
         ai = Message.query.get(message_id)
         if not ai:
             return
+        
+        try:
+            user_msg = (
+                Message.query.filter(
+                    Message.thread_id == ai.thread_id,
+                    Message.message_index == ai.message_index - 1
+                )
+                .first()
+            )
 
-        chunks = [
-            "考えています",
-            "回答中です",
-            "回答が完成しました",
-        ]
-
-        for c in chunks:
-            ai.content = (ai.content or "") + c
+            if not user_msg:
+                ai.content = "ユーザーメッセージが見つかりませんでした"
+                db.session.commit()
+                return
+            ai.content = ""
             db.session.commit()
 
-            time.sleep(1)
+            full_text = ""
+
+            for delta in stream_ai_response(user_msg.content, model=ai.model):
+                full_text += delta
+                ai.content = full_text
+                db.session.commit()
+            
+            ai.status = "completed"
+            db.session.commit()
+
+        except Exception as err:
+            ai.content = f"生成失敗: {str(err)}"
+            ai.status = "failed"
+            db.session.commit()
+
 
 def list_messages(uid, thread_id, limit=200, offset=0):
-    _, e = ensure_thread_owner(uid, thread_id)
-    if e:
-        return None, e
+    _, err = ensure_thread_owner(uid, thread_id)
+    if err:
+        return None, err
     
     query = (
         Message.query
