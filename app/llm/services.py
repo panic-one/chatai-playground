@@ -1,29 +1,41 @@
 import os
 from openai import OpenAI
 from collections.abc import Iterator
+from .providers.claude import stream_claude
+from .providers.deepseek import stream_deepseek
+from .providers.gemini import stream_gemini
+from .providers.openai import stream_openai
 
-AI_PROMPT = "あなたは親切でわかりやすいAIアシスタントです"
+DEFAULT_MODEL = "gpt-4o-mini"
 
-client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY")
-)
+DEFAULT_PROVIDER_MODEL = {
+    "openai": "gpt-4o-mini",
+    "gemini": "gemini-2.5-flash",
+    "claude": "claude-sonnet-4-6",
+    "deepseek": "deepseek-coder",
+}
+
+MODEL_MAP = {
+    "gpt-4o-mini": stream_openai,
+    "gemini-2.5-flash": stream_gemini,
+    "claude-sonnet-4-6": stream_claude,
+    "deepseek-coder": stream_deepseek,
+}
+
+def decided_model(provider: str) -> str:
+    model = DEFAULT_PROVIDER_MODEL.get(provider)
+    if not model:
+        raise ValueError(f"Unsupported provider: {provider}")
+    return model
 
 def stream_ai_response(user_message: str, model: str | None = None) -> Iterator[str]:
-    if not user_message or not user_message.strip():
+    if not user_message.strip():
         raise ValueError("user_message is required")
     
-    model_name = model or os.environ.get("DEFAULT_LLM_MODEL", "gpt-4o-mini")
-
-    stream = client.chat.completions.create(
-        model=model_name,
-        messages=[
-            {"role": "system", "content": AI_PROMPT},
-            {"role": "user", "content": user_message},
-        ],
-        stream=True
-    )
-
-    for chunk in stream:
-        delta = chunk.choices[0].delta.content
-        if delta:
-            yield delta
+    model = model or DEFAULT_MODEL
+    
+    fn = MODEL_MAP.get(model)
+    if not fn:
+        raise ValueError(f"Unsupported model: {model}")
+    
+    return fn(user_message, model)
