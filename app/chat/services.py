@@ -8,7 +8,8 @@ from flask import current_app
 from app.llm.services import stream_ai_response
 
 JST = ZoneInfo("Asia/Tokyo")
-
+DEFAULT_MODEL = "gpt-4o-mini"
+ 
 def create_thread(uid, title):
     title = (title or "").strip()
     if not title:
@@ -25,7 +26,7 @@ def list_threads(uid):
 
     return query.all()
 
-def get_threads(uid, thread_id):
+def get_thread(uid, thread_id):
     th = Thread.query.get(thread_id)
     if not th:
         return None, ("not found", None)
@@ -78,11 +79,13 @@ def next_message_index(thread_id: int) -> int:
     )
     return (last or 0) + 1
 
-def create_user_message_and_ai(uid, thread_id, content):
+def create_user_message_and_ai(uid, thread_id, content, model=None):
     _, err = ensure_thread_owner(uid, thread_id)
     if err:
         return None, None, err
     
+    model = model or DEFAULT_MODEL
+
     try:
         now = datetime.now(JST)
         base_index = next_message_index(thread_id)
@@ -103,10 +106,10 @@ def create_user_message_and_ai(uid, thread_id, content):
             role=1,
             content="",
             firebase_uid=None,
-            model="gpt-4o-mini", ##将来切り替える
+            model=model, ##将来切り替える
             created_at=now,
             message_index=base_index + 1,
-            status="genetating"
+            status="generating"
         )
 
         db.session.add(user_msg)
