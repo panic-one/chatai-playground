@@ -9,17 +9,14 @@ client = Anthropic(
 )
 
 def stream_claude(user_message: str, model: str) -> Iterator[str]:
-    stream = client.messages.stream(
+    with client.messages.stream(
         model=model,
         max_tokens=1024,
         system=AI_PROMPT,
         messages=[
             {"role": "user", "content": user_message}
         ]
-    )
-
-    for chunk in stream:
-        if chunk.type == "content_block_delta":
-            text = chunk.delta.text
+    ) as stream:
+        for text in stream.text_stream:
             if text:
                 yield text
