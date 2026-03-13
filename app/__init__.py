@@ -66,9 +66,6 @@ def create_app():
 
     from .auth import auth_bp
     app.register_blueprint(auth_bp)
-    
-    from .llm_change import llm_bp
-    app.register_blueprint(llm_bp) 
 
     from app.chat import threads_bp
     app.register_blueprint(threads_bp)
