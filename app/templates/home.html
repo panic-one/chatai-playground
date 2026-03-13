@@ -546,12 +546,17 @@
       });
     }
 
-    async function getIdToken() {
+    let cachedToken = null;
+
+    async function getIdToken(){
+      if(cachedToken) return cachedToken;
+
       const user = firebase.auth().currentUser;
       if (!user) {
         throw new Error("Firebase user not found");
       }
-      return await user.getIdToken(true);
+      cachedToken = await user.getIdToken();
+      return cachedToken;
     }
 
     async function apiFetch(path, options = {}) {
@@ -1019,7 +1024,7 @@
 
         currentUser = user;
 
-        await user.getIdToken(true);
+        await user.getIdToken();
         await reloadThreads();
         setMainStatus("準備OK（スレッドを選択してね）");
       } catch (err) {
