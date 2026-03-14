@@ -3,6 +3,7 @@ from . import threads_bp
 from app.auth.auth_services import verify_firebase_token
 from . import services
 from app.services import handle_error
+from app.llm.services import decided_model
 
 @threads_bp.before_request
 def authenticate():
@@ -59,18 +60,19 @@ def delete_thread(thread_id: int):
 def post_message(thread_id: int):
     payload = request.get_json(silent=True) or {}
     content = (payload.get("content") or "").strip()
+    provider = (payload.get("provider") or "").strip()
+    model = decided_model(provider)
 
     if not content:
         return jsonify({"error": "content is required"}), 400
-    
-    user_msg, ai_msg, e = services.create_user_message_and_ai(g.uid, thread_id, content)
-    err_res = handle_error(e, "messsage not found")
+    user_msg, ai_msg, e = services.create_user_message_and_ai(g.uid, thread_id, content, model)
+    err_res = handle_error(e, "message not found")
     if err_res:
         return err_res
         
     return jsonify({
         "user": user_msg.to_dict(),
-        "ai": ai_msg.to_dict()
+        "ai": ai_msg.to_dict(),
     }), 202
 
 
