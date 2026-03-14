@@ -6,18 +6,19 @@ from .providers.openai import stream_openai
 
 DEFAULT_MODEL = "gpt-4o-mini"
 
+PROVIDER_CONFIG = {
+    "openai": ("gpt-4o-mini", stream_openai),
+    "gemini": ("gemini-2.5-flash", stream_gemini),
+    "claude": ("claude-sonnet-4-6", stream_claude),
+    "deepseek": ("deepseek-coder", stream_deepseek),
+}
+
 DEFAULT_PROVIDER_MODEL = {
-    "openai": "gpt-4o-mini",
-    "gemini": "gemini-2.5-flash",
-    "claude": "claude-sonnet-4-6",
-    "deepseek": "deepseek-coder",
+    provider: config[0] for provider, config in PROVIDER_CONFIG.items()
 }
 
 MODEL_MAP = {
-    "gpt-4o-mini": stream_openai,
-    "gemini-2.5-flash": stream_gemini,
-    "claude-sonnet-4-6": stream_claude,
-    "deepseek-coder": stream_deepseek,
+    config[0]: config[1] for config in PROVIDER_CONFIG.values()
 }
 
 def decided_model(provider: str) -> str:
