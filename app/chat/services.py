@@ -5,7 +5,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 import threading, time
 from flask import current_app
-from app.llm.services import stream_ai_response
+from app.llm.services import stream_ai_response, decided_model, DEFAULT_MODEL
 
 JST = ZoneInfo("Asia/Tokyo")
  
@@ -25,7 +25,7 @@ def list_threads(uid):
 
     return query.all()
 
-def get_threads(uid, thread_id):
+def get_thread(uid, thread_id):
     th = Thread.query.get(thread_id)
     if not th:
         return None, ("not found", None)
@@ -78,11 +78,13 @@ def next_message_index(thread_id: int) -> int:
     )
     return (last or 0) + 1
 
-def create_user_message_and_ai(uid, thread_id, content):
+def create_user_message_and_ai(uid, thread_id, content, provider=None):
     _, err = ensure_thread_owner(uid, thread_id)
     if err:
         return None, None, err
     
+    model = decided_model(provider) if provider else DEFAULT_MODEL
+
     try:
         now = datetime.now(JST)
         base_index = next_message_index(thread_id)
@@ -103,10 +105,10 @@ def create_user_message_and_ai(uid, thread_id, content):
             role=1,
             content="",
             firebase_uid=None,
-            model="gpt-4o-mini", ##将来切り替える
+            model=model,
             created_at=now,
             message_index=base_index + 1,
-            status="genetating"
+            status="generating"
         )
 
         db.session.add(user_msg)

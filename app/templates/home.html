@@ -126,12 +126,31 @@
       background: rgba(239,68,68,.12);
     }
 
+    .btn.active{
+      border-color: rgba(124,58,237,.75);
+      background: rgba(124,58,237,.28);
+      color: var(--text);
+    }
+
+    .model-selector{
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .model-label{
+      font-size: 12px;
+      color: var(--muted2);
+      white-space: nowrap;
+    }
+
     .btn.small{
       padding: 8px 10px;
       font-size: 12px;
       border-radius: 10px;
       width:auto;
     }
+
 
     .section-title{
       margin: 8px 2px 2px;
@@ -458,7 +477,14 @@
           <span>チャット</span>
           <span class="thread-title" id="threadTitle"></span>
         </p>
-        <div style="display:flex; gap:10px;">
+        <div style="display:flex; gap:10px; align-items:center;">
+          <div class="model-selector">
+            <span class="model-label">モデル</span>
+            <button class="btn small active" id="btn-openai" type="button" onclick="selectProvider('openai')">GPT</button>
+            <button class="btn small" id="btn-gemini" type="button" onclick="selectProvider('gemini')">Gemini</button>
+            <button class="btn small" id="btn-claude" type="button" onclick="selectProvider('claude')">Claude</button>
+            <button class="btn small" id="btn-deepseek" type="button" onclick="selectProvider('deepseek')">DeepSeek</button>
+          </div>
           <button class="btn small" type="button" onclick="clearCurrentChatView()">クリア</button>
         </div>
       </header>
@@ -518,10 +544,19 @@
 
     let currentThread = null;
     let currentUser = null;
+    let selectedProvider = "openai";
     const aiPollers = new Map();
 
     function scrollToBottom() {
       chat.scrollTop = chat.scrollHeight;
+    }
+
+    function selectProvider(provider) {
+      selectedProvider = provider;
+      ["openai", "gemini", "claude", "deepseek"].forEach((p) => {
+        const btn = document.getElementById(`btn-${p}`);
+        if (btn) btn.classList.toggle("active", p === provider);
+      });
     }
 
     function setSidebarStatus(text, isErr = false) {
@@ -546,17 +581,12 @@
       });
     }
 
-    let cachedToken = null;
-
     async function getIdToken(){
-      if(cachedToken) return cachedToken;
-
       const user = firebase.auth().currentUser;
       if (!user) {
         throw new Error("Firebase user not found");
       }
-      cachedToken = await user.getIdToken();
-      return cachedToken;
+      return await user.getIdToken();
     }
 
     async function apiFetch(path, options = {}) {
@@ -969,7 +999,7 @@
 
         const res = await apiFetch(`${API_BASE}/${tid}/messages`, {
           method: "POST",
-          body: JSON.stringify({ content: text }),
+          body: JSON.stringify({ content: text, provider: selectedProvider }),
         });
 
         if (res?.thread && (res.thread.title || res.thread.thread_id || res.thread.id)) {

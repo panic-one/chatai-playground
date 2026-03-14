@@ -1,5 +1,4 @@
 import os
-from openai import OpenAI
 from collections.abc import Iterator
 from .providers.claude import stream_claude
 from .providers.deepseek import stream_deepseek

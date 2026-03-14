@@ -59,11 +59,12 @@ def delete_thread(thread_id: int):
 def post_message(thread_id: int):
     payload = request.get_json(silent=True) or {}
     content = (payload.get("content") or "").strip()
+    provider = payload.get("provider") or None
 
     if not content:
         return jsonify({"error": "content is required"}), 400
     
-    user_msg, ai_msg, e = services.create_user_message_and_ai(g.uid, thread_id, content)
+    user_msg, ai_msg, e = services.create_user_message_and_ai(g.uid, thread_id, content, provider=provider)
     err_res = handle_error(e, "messsage not found")
     if err_res:
         return err_res
