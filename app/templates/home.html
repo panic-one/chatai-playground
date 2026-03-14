@@ -416,9 +416,59 @@
       .sidebar{ display:none; }
       .main{
         height: 100vh;
-        display:flex;
-        flex-direction:column;
+        display: flex;
+        flex-direction: column;
       }
+    }
+
+    .topbar-right{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap: wrap;
+    }
+
+    .model-picker{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap: wrap;
+    }
+
+    .model-label{
+      font-size:12px;
+      color: var(--muted);
+    }
+
+    .model-buttons{
+      display:flex;
+      gap:8px;
+      flex-wrap: wrap;
+    }
+
+    .model-btn{
+      appearance:none;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor:pointer;
+      font-size:12px;
+      transition: background .15s ease, border-color .15s ease, transform .08s ease;
+    }
+
+    .model-btn:hover{
+      background: rgba(255,255,255,.06);
+    }
+
+    .model-btn:active{
+      transform: translateY(1px);
+    }
+
+    .model-btn.active{
+      border-color: rgba(124,58,237,.55);
+      background: rgba(124,58,237,.18);
     }
   </style>
 </head>
@@ -458,7 +508,18 @@
           <span>チャット</span>
           <span class="thread-title" id="threadTitle"></span>
         </p>
-        <div style="display:flex; gap:10px;">
+
+        <div class="topbar-right">
+          <div class="model-picker">
+            <span class="model-label">モデル</span>
+            <div class="model-buttons" id="modelButtons">
+              <button class="model-btn active" type="button" data-provider="openai">GPT</button>
+              <button class="model-btn" type="button" data-provider="gemini">Gemini</button>
+              <button class="model-btn" type="button" data-provider="claude">Claude</button>
+              <button class="model-btn" type="button" data-provider="deepseek">DeepSeek</button>
+            </div>
+          </div>
+
           <button class="btn small" type="button" onclick="clearCurrentChatView()">クリア</button>
         </div>
       </header>
@@ -515,9 +576,12 @@
     const sidebarStatus = document.getElementById("sidebarStatus");
     const mainStatus = document.getElementById("mainStatus");
     const threadTitleEl = document.getElementById("threadTitle");
+    const modelButtons = document.getElementById("modelButtons");
+
 
     let currentThread = null;
     let currentUser = null;
+    let currentProvider = "openai";
     const aiPollers = new Map();
 
     function scrollToBottom() {
@@ -546,12 +610,17 @@
       });
     }
 
-    async function getIdToken() {
+    let cachedToken = null;
+
+    async function getIdToken(){
+      if(cachedToken) return cachedToken;
+
       const user = firebase.auth().currentUser;
       if (!user) {
         throw new Error("Firebase user not found");
       }
-      return await user.getIdToken(true);
+      cachedToken = await user.getIdToken();
+      return cachedToken;
     }
 
     async function apiFetch(path, options = {}) {
@@ -594,6 +663,17 @@
         return { avatar: "You", css: "user" };
       }
       return { avatar: "AI", css: "ai" };
+    }
+
+    function setActiveModel(provider) {
+      currentProvider = provider;
+
+      const buttons = modelButtons.querySelectorAll(".model-btn");
+      buttons.forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.provider === provider);
+      });
+
+      setMainStatus(`準備OK / provider: ${provider}`);
     }
 
     function stopAllPollers() {
@@ -964,7 +1044,10 @@
 
         const res = await apiFetch(`${API_BASE}/${tid}/messages`, {
           method: "POST",
-          body: JSON.stringify({ content: text }),
+          body: JSON.stringify({
+            content: text,
+            provider: currentProvider
+          }),
         });
 
         if (res?.thread && (res.thread.title || res.thread.thread_id || res.thread.id)) {
@@ -1010,6 +1093,16 @@
       }
     });
 
+    modelButtons.addEventListener("click", (e) => {
+      const btn = e.target.closest(".model-btn");
+      if (!btn) return;
+
+      const provider = btn.dataset.provider;
+      if (!provider) return;
+
+      setActiveModel(provider);
+    });
+
     firebase.auth().onAuthStateChanged(async (user) => {
       try {
         if (!user) {
@@ -1019,7 +1112,7 @@
 
         currentUser = user;
 
-        await user.getIdToken(true);
+        await user.getIdToken();
         await reloadThreads();
         setMainStatus("準備OK（スレッドを選択してね）");
       } catch (err) {
