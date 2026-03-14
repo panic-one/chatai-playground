@@ -21,7 +21,7 @@ MODEL_MAP = {
     config[0]: config[1] for config in PROVIDER_CONFIG.values()
 }
 
-def decided_model(provider: str) -> str:
+def get_default_model(provider: str) -> str:
     model = DEFAULT_PROVIDER_MODEL.get(provider)
     if not model:
         raise ValueError(f"Unsupported provider: {provider}")
