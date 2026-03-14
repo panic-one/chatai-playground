@@ -5,8 +5,8 @@ from collections.abc import Iterator
 AI_PROMPT = "あなたは親切でわかりやすいAIアシスタントです"
 
 client = OpenAI(
-    api_key = os.environ.get("DEEPSEEK_API_KEY"),
-    base_url = "https://api.deepseek.com"
+    api_key=os.environ.get("DEEPSEEK_API_KEY"),
+    base_url="https://api.deepseek.com"
 )
 
 def stream_deepseek(user_message: str, model: str) -> Iterator[str]:

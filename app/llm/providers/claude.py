@@ -9,7 +9,7 @@ client = Anthropic(
 )
 
 def stream_claude(user_message: str, model: str) -> Iterator[str]:
-    with client.message.stream(
+    with client.messages.stream(
         model=model,
         max_tokens=1024,
         system=AI_PROMPT,

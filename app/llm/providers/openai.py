@@ -5,7 +5,7 @@ from collections.abc import Iterator
 AI_PROMPT = "あなたは親切でわかりやすいAIアシスタントです"
 
 client = OpenAI(
-    api_key = os.environ.get("OPENAI_API_KEY")
+    api_key=os.environ.get("OPENAI_API_KEY")
 )
 
 def stream_openai(user_message: str, model: str) -> Iterator[str]:
