@@ -581,7 +581,7 @@
 
     let currentThread = null;
     let currentUser = null;
-    let currentProvider = "openai"
+    let currentProvider = "openai";
     const aiPollers = new Map();
 
     function scrollToBottom() {
@@ -1023,8 +1023,6 @@
       const text = input.value.trim();
       if (!text) return;
 
-      console.log("sending currentProvider =", currentProvider)
-
       if (!currentThread) {
         alert("先にスレッドを作って選択してね（左の＋）");
         return;
@@ -1047,7 +1045,7 @@
         const res = await apiFetch(`${API_BASE}/${tid}/messages`, {
           method: "POST",
           body: JSON.stringify({
-            content: text ,
+            content: text,
             provider: currentProvider
           }),
         });
