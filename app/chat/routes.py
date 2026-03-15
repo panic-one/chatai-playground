@@ -3,7 +3,7 @@ from . import threads_bp
 from app.auth.auth_services import verify_firebase_token
 from . import services
 from app.services import handle_error
-from app.llm.services import decided_model
+from app.llm.services import stream_ai_response_with_meta
 
 @threads_bp.before_request
 def authenticate():
@@ -60,12 +60,24 @@ def delete_thread(thread_id: int):
 def post_message(thread_id: int):
     payload = request.get_json(silent=True) or {}
     content = (payload.get("content") or "").strip()
-    provider = (payload.get("provider") or "").strip()
-    model = decided_model(provider)
+    provider = (payload.get("provider") or "auto").strip()
+    model = (payload.get("model") or "").strip() or None
 
     if not content:
         return jsonify({"error": "content is required"}), 400
-    user_msg, ai_msg, e = services.create_user_message_and_ai(g.uid, thread_id, content, model)
+    
+    try:
+        _, selection, analysis = stream_ai_response_with_meta(
+            user_message=content,
+            provider=provider,
+            model=model,
+        )
+    except ValueError as err:
+        return jsonify({"error": str(err)}), 400
+    except Exception as err:
+        return jsonify({"error": f"llm routing failed: {str(err)}"}), 500
+    
+    user_msg, ai_msg, e = services.create_user_message_and_ai(g.uid, thread_id, content, selection.model)
     err_res = handle_error(e, "message not found")
     if err_res:
         return err_res
@@ -73,6 +85,15 @@ def post_message(thread_id: int):
     return jsonify({
         "user": user_msg.to_dict(),
         "ai": ai_msg.to_dict(),
+        "llm": {
+            "provider": selection.provider,
+            "model": selection.model,
+            "score": selection.score,
+            "routing_mode": selection.routing_mode,
+            "category": analysis.category,
+            "difficulty": analysis.difficulty,
+            "reason": analysis.reason,
+        }
     }), 202
 
 
