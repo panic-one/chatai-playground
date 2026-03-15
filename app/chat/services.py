@@ -3,12 +3,13 @@ from app.models.thread import Thread
 from app.models.message import Message
 from datetime import datetime
 from zoneinfo import ZoneInfo
-import threading, time
+import threading
 from flask import current_app
 from app.llm.services import stream_ai_response
 
 JST = ZoneInfo("Asia/Tokyo")
 
+DEFAULT_PROVIDER = "openai"
 DEFAULT_MODEL = "gpt-4o-mini"
  
 def create_thread(uid, title):
@@ -80,12 +81,13 @@ def next_message_index(thread_id: int) -> int:
     )
     return (last or 0) + 1
 
-def create_user_message_and_ai(uid, thread_id, content, model=None):
+def create_user_message_and_ai(uid, thread_id, content, provider=None, model=None):
     _, err = ensure_thread_owner(uid, thread_id)
     if err:
         return None, None, err
     
-    model = model or DEFAULT_MODEL
+    selected_provider = provider or DEFAULT_PROVIDER
+    selected_model = model or DEFAULT_MODEL
 
     try:
         now = datetime.now(JST)
@@ -95,6 +97,7 @@ def create_user_message_and_ai(uid, thread_id, content, model=None):
             thread_id=thread_id,
             role=0,
             firebase_uid=uid,
+            provider=None,
             model=None,
             content=content,
             created_at=now,
@@ -107,7 +110,8 @@ def create_user_message_and_ai(uid, thread_id, content, model=None):
             role=1,
             content="",
             firebase_uid=None,
-            model=model, ##将来切り替える
+            provider=selected_provider,
+            model=selected_model,
             created_at=now,
             message_index=base_index + 1,
             status="generating"
@@ -168,7 +172,7 @@ def run_ai_generation(app, message_id):
 
             full_text = ""
 
-            for delta in stream_ai_response(user_msg.content, model=ai.model):
+            for delta in stream_ai_response(user_msg.content, provider=ai.provider, model=ai.model):
                 full_text += delta
                 ai.content = full_text
                 db.session.commit()
