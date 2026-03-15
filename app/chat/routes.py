@@ -77,7 +77,7 @@ def post_message(thread_id: int):
     except Exception as err:
         return jsonify({"error": f"llm routing failed: {str(err)}"}), 500
     
-    user_msg, ai_msg, e = services.create_user_message_and_ai(g.uid, thread_id, content, selection.model)
+    user_msg, ai_msg, e = services.create_user_message_and_ai(g.uid, thread_id, content, selection.provider, selection.model)
     err_res = handle_error(e, "message not found")
     if err_res:
         return err_res
