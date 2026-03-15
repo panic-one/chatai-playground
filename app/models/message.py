@@ -8,6 +8,7 @@ class Message(db.Model):
     thread_id = db.Column(db.BigInteger, db.ForeignKey("threads.thread_id"), nullable=False)
     role = db.Column(db.Integer, nullable=False)
     firebase_uid = db.Column(db.String(28), index=True)
+    provider = db.Column(db.String(50), nullable=True)
     model = db.Column(db.String(50))
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
@@ -20,6 +21,7 @@ class Message(db.Model):
             "thread_id": self.thread_id,
             "role": self.role,
             "content": self.content,
+            "provider": self.provider,
             "model": self.model,
             "firebase_uid": self.firebase_uid,
             "message_index": self.message_index,
