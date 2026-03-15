@@ -511,12 +511,13 @@
 
         <div class="topbar-right">
           <div class="model-picker">
-            <span class="model-label">モデル</span>
+            <span class="model-label">Provider</span>
             <div class="model-buttons" id="modelButtons">
               <button class="model-btn active" type="button" data-provider="openai">GPT</button>
               <button class="model-btn" type="button" data-provider="gemini">Gemini</button>
               <button class="model-btn" type="button" data-provider="claude">Claude</button>
               <button class="model-btn" type="button" data-provider="deepseek">DeepSeek</button>
+              <button class="model-btn" type="button" data-provider="auto">Auto</button>
             </div>
           </div>
 
@@ -543,7 +544,7 @@
         </div>
         <div class="hint">
           <span id="mainStatus">準備中…</span>
-          <span>AIはポーリングで更新表示</span>
+          <span id="llmStatus">provider: openai</span>
         </div>
       </footer>
     </main>
@@ -577,7 +578,7 @@
     const mainStatus = document.getElementById("mainStatus");
     const threadTitleEl = document.getElementById("threadTitle");
     const modelButtons = document.getElementById("modelButtons");
-
+    const llmStatus = document.getElementById("llmStatus");
 
     let currentThread = null;
     let currentUser = null;
@@ -598,6 +599,10 @@
       mainStatus.style.color = isErr
         ? "rgba(239,68,68,.9)"
         : "rgba(255,255,255,.55)";
+    }
+
+    function setLlmStatus(text) {
+      llmStatus.textContent = text || "";
     }
 
     function safeJson(res) {
@@ -674,6 +679,7 @@
       });
 
       setMainStatus(`準備OK / provider: ${provider}`);
+      setLlmStatus(`selected provider: ${provider}`);
     }
 
     function stopAllPollers() {
@@ -735,6 +741,7 @@
 
       const parts = [];
       if (msg.status) parts.push(`status: ${msg.status}`);
+      if (msg.provider) parts.push(`provider: ${msg.provider}`);
       if (msg.model) parts.push(`model: ${msg.model}`);
       if (msg.message_index != null) parts.push(`#${msg.message_index}`);
       if (msg.created_at) parts.push(msg.created_at);
@@ -758,6 +765,21 @@
         el.textContent = newText ?? "";
       }
       scrollToBottom();
+    }
+
+    function updateMessageMeta(messageId, msg) {
+      const selector = `.msg[data-message-id="${CSS.escape(messageId)}"] .bubble .meta`;
+      const el = chatInner.querySelector(selector);
+      if (!el) return;
+
+      const parts = [];
+      if (msg.status) parts.push(`status: ${msg.status}`);
+      if (msg.provider) parts.push(`provider: ${msg.provider}`);
+      if (msg.model) parts.push(`model: ${msg.model}`);
+      if (msg.message_index != null) parts.push(`#${msg.message_index}`);
+      if (msg.created_at) parts.push(msg.created_at);
+
+      el.textContent = parts.join(" / ");
     }
 
     function shouldStopPolling(msg) {
@@ -788,6 +810,8 @@
             updateMessageContent(String(messageId), text);
             last = text;
           }
+
+          updateMessageMeta(String(messageId), msg);
 
           if (shouldStopPolling(msg) || ticks > 240) {
             clearInterval(timer);
@@ -1055,6 +1079,13 @@
           threadTitleEl.textContent = res.thread.title ? `— ${res.thread.title}` : threadTitleEl.textContent;
         }
 
+        if (res?.llm) {
+          const llm = res.llm;
+          setLlmStatus(
+            `used provider: ${llm.provider} / model: ${llm.model} / mode: ${llm.routing_mode}`
+          );
+        }
+
         const ai = res?.ai;
         if (ai) {
           appendMessage(ai);
@@ -1114,6 +1145,7 @@
 
         await user.getIdToken();
         await reloadThreads();
+        setActiveModel("openai");
         setMainStatus("準備OK（スレッドを選択してね）");
       } catch (err) {
         console.error(err);
