@@ -15,12 +15,29 @@ AI_PROMPT = """
 "difficulty": "low | medium | high",
 "reason": "理由"
 }
+
+分類ルール:
+category:
+- inquiry: 単純な質問、事実確認
+- task1: 文章生成
+- task2: 翻訳や要約
+- reasoning: 論理的な推論
+- programming: プログラミングに関するコード生成やアルゴリズム
+
+difficulty:
+- low:一般的な知識で即答できる単純な質問
+- medium:複数の情報を組み合わせたり、ある程度の専門知識や手順を要する依頼
+- high:高度な専門知識、複雑な論理的思考を必要とする依頼
+
+例:
+- 1+1を答えて inquiry / row
 """.strip()
 
 
 CATEGORY_SCORES = {
     "inquiry": 10,
-    "task": 25,
+    "task1": 25,
+    "task2": 30,
     "reasoning": 40,
     "programming": 50,
 }
@@ -34,31 +51,35 @@ DIFFICULTY_SCORES = {
 
 PROVIDER_CATEGORY_SCORE = {
     "openai": {
-        "inquiry": 1,
-        "task": 1,
-        "reasoning": 1,
-        "programming": 1,
+        "inquiry": 5,
+        "task1": 0,
+        "task2": 0,
+        "reasoning": 0,
+        "programming": 0,
     },
 
     "gemini": {
-        "inquiry": 1,
-        "task": 1,
-        "reasoning": 1,
-        "programming": 1,
+        "inquiry": 0,
+        "task1": 0,
+        "task2": 5,
+        "reasoning": 0,
+        "programming": 0,
     },
 
     "claude": {
-        "inquiry": 1,
-        "task": 1,
-        "reasoning": 1,
-        "programming": 1,
+        "inquiry": 0,
+        "task1": 5,
+        "task2": 0,
+        "reasoning": 5,
+        "programming": 0,
     },
 
     "deepseek": {
-        "inquiry": 1,
-        "task": 1,
-        "reasoning": 1,
-        "programming": 1,
+        "inquiry": 0,
+        "task1": 0,
+        "task2": 0,
+        "reasoning": 0,
+        "programming": 5,
     }
 }
 
@@ -80,7 +101,7 @@ def analyze_user_message(user_message: str) -> AnalysisResult:
     )
 
     content = response.choices[0].message.content or "{}"
-    
+
     try:
         data = json.loads(content)
     except Exception:
