@@ -120,9 +120,11 @@ def analyze_user_message(user_message: str) -> AnalysisResult:
 
     category = data.get("category", "inquiry")
     difficulty = data.get("difficulty", "medium")
-    reason = data.get("reason", "")
+    reason = str(data.get("reason", "")).strip()
+    if not reason:
+        reason = "分類理由ない"
 
-    if category not in {"inquiry", "task", "reasoning", "programming"}:
+    if category not in {"inquiry", "writing", "translation", "reasoning", "programming"}:
         category = "inquiry"
 
     if difficulty not in {"low", "medium", "high"}:
