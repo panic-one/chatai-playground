@@ -11,7 +11,7 @@ AI_PROMPT = """
 あなたはユーザーのメッセージを分類するAIです。
 以下のJSONだけを返してください。
 {
-"category": "inquiry | task | reasoning | programming",
+"category": "inquiry | writing | translation | reasoning | programming",
 "difficulty": "low | medium | high",
 "reason": "理由"
 }
@@ -19,10 +19,10 @@ AI_PROMPT = """
 分類ルール:
 category:
 - inquiry: 単純な質問、事実確認
-- task1: 文章生成
-- task2: 翻訳や要約
+- translation: 翻訳や要約
+- writing: 文章生成
 - reasoning: 論理的な推論
-- programming: プログラミングに関するコード生成やアルゴリズム
+- programming: プログラミングに関するコード生成、デバック、設計、アルゴリズム
 
 difficulty:
 - low:一般的な知識で即答できる単純な質問
@@ -30,14 +30,21 @@ difficulty:
 - high:高度な専門知識、複雑な論理的思考を必要とする依頼
 
 例:
-- 1+1を答えて inquiry / row
-""".strip()
+- 入力: 1+1を答えて 
+- 出力: {"category": "inquiry", "difficulty": "low", "reason": "単純な計算"}
 
+- 入力: この文章英語に翻訳して 
+- 出力: {"category": "translation", "difficulty": "low", "reason": "翻訳タスク"}
+
+- 入力: Pythonで二分探索のコードを書いて 
+- 出力: {"category": "programming", "difficulty": "medium", "reason": "アルゴリズム"}
+
+"""
 
 CATEGORY_SCORES = {
     "inquiry": 10,
-    "task1": 25,
-    "task2": 30,
+    "translation": 20,
+    "writing": 30,
     "reasoning": 40,
     "programming": 50,
 }
@@ -52,32 +59,32 @@ DIFFICULTY_SCORES = {
 PROVIDER_CATEGORY_SCORE = {
     "openai": {
         "inquiry": 5,
-        "task1": 0,
-        "task2": 0,
+        "translation": 0,
+        "writing": 0,
         "reasoning": 0,
         "programming": 0,
     },
 
     "gemini": {
         "inquiry": 0,
-        "task1": 0,
-        "task2": 5,
+        "translation": 0,
+        "writing": 5,
         "reasoning": 0,
         "programming": 0,
     },
 
     "claude": {
         "inquiry": 0,
-        "task1": 5,
-        "task2": 0,
+        "translation": 5,
+        "writing": 0,
         "reasoning": 5,
         "programming": 0,
     },
 
     "deepseek": {
         "inquiry": 0,
-        "task1": 0,
-        "task2": 0,
+        "translation": 0,
+        "writing": 0,
         "reasoning": 0,
         "programming": 5,
     }
