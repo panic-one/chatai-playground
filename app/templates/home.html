@@ -710,6 +710,16 @@
       }
     }
 
+    function buildMetaParts(msg) {
+      const parts = [];
+      if (msg.status) parts.push('status: ${msg.status}');
+      if (msg.provider) parts.push('provider: ${msg.provider}');
+      if (msg.model) parts.push(`model: ${msg.model}`);
+      if (msg.message_index != null) parts.push(`#${msg.message_index}`);
+      if (msg.created_at) parts.push(msg.created_at);
+      return parts;
+    }
+
     function appendMessage(msg) {
       const role = msg.role ?? "ai";
       const text = msg.content ?? "";
@@ -739,12 +749,7 @@
       const meta = document.createElement("div");
       meta.className = "meta";
 
-      const parts = [];
-      if (msg.status) parts.push(`status: ${msg.status}`);
-      if (msg.provider) parts.push(`provider: ${msg.provider}`);
-      if (msg.model) parts.push(`model: ${msg.model}`);
-      if (msg.message_index != null) parts.push(`#${msg.message_index}`);
-      if (msg.created_at) parts.push(msg.created_at);
+      const parts = buildMetaParts(msg);
 
       if (parts.length) {
         meta.textContent = parts.join(" / ");
@@ -772,12 +777,7 @@
       const el = chatInner.querySelector(selector);
       if (!el) return;
 
-      const parts = [];
-      if (msg.status) parts.push(`status: ${msg.status}`);
-      if (msg.provider) parts.push(`provider: ${msg.provider}`);
-      if (msg.model) parts.push(`model: ${msg.model}`);
-      if (msg.message_index != null) parts.push(`#${msg.message_index}`);
-      if (msg.created_at) parts.push(msg.created_at);
+      const parts = buildMetaParts(msg);
 
       el.textContent = parts.join(" / ");
     }
