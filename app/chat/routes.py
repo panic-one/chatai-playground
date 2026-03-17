@@ -4,6 +4,9 @@ from app.auth.auth_services import verify_firebase_token
 from . import services
 from app.services import handle_error
 from app.llm.services import stream_ai_response_with_meta
+import logging
+
+logger = logging.getLogger(__name__)
 
 @threads_bp.before_request
 def authenticate():
@@ -75,7 +78,8 @@ def post_message(thread_id: int):
     except ValueError as err:
         return jsonify({"error": str(err)}), 400
     except Exception as err:
-        return jsonify({"error": f"llm routing failed: {str(err)}"}), 500
+        logger.exception("LLM routing failed during post_message")
+        return jsonify({"error": "llm routing failed"}), 500
     
     user_msg, ai_msg, e = services.create_user_message_and_ai(g.uid, thread_id, content, selection.provider, selection.model)
     err_res = handle_error(e, "message not found")
