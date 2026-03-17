@@ -29,9 +29,9 @@ PROVIDER_CONFIG = {
     "claude": {
         "stream_fn": stream_claude,
         "models": [
-            {"name": "claude-haiku-3.5", "min_score": 0, "max_score": 24},
+            {"name": "claude-haiku-4-5", "min_score": 0, "max_score": 24},
             {"name": "claude-sonnet-4-6", "min_score": 25, "max_score": 74},
-            {"name": "claude-opus-4-1", "min_score": 75, "max_score": 100}
+            {"name": "claude-opus-4-6", "min_score": 75, "max_score": 100}
         ],
     },
 
