@@ -18,11 +18,11 @@ DIFFICULTIES = ("low", "medium", "high")
 AI_PROMPT = """
 あなたはユーザーのメッセージを分類するAIです。
 以下のJSONだけを返してください。
-{
+{{
 "category": "{categories}",
 "difficulty": "{difficulties}",
 "reason": "理由"
-}
+}}
 
 分類ルール:
 category:
@@ -39,13 +39,13 @@ difficulty:
 
 例:
 - 入力: 1+1を答えて 
-- 出力: {"category": "inquiry", "difficulty": "low", "reason": "単純な計算"}
+- 出力: {{"category": "inquiry", "difficulty": "low", "reason": "単純な計算"}}
 
 - 入力: この文章英語に翻訳して 
-- 出力: {"category": "translation", "difficulty": "low", "reason": "翻訳タスク"}
+- 出力: {{"category": "translation", "difficulty": "low", "reason": "翻訳タスク"}}
 
 - 入力: Pythonで二分探索のコードを書いて 
-- 出力: {"category": "programming", "difficulty": "medium", "reason": "アルゴリズム"}
+- 出力: {{"category": "programming", "difficulty": "medium", "reason": "アルゴリズム"}}
 
 """.format(
     categories=" | ".join(CATEGORIES),

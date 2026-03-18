@@ -712,8 +712,8 @@
 
     function buildMetaParts(msg) {
       const parts = [];
-      if (msg.status) parts.push('status: ${msg.status}');
-      if (msg.provider) parts.push('provider: ${msg.provider}');
+      if (msg.status) parts.push(`status: ${msg.status}`);
+      if (msg.provider) parts.push(`provider: ${msg.provider}`);
       if (msg.model) parts.push(`model: ${msg.model}`);
       if (msg.message_index != null) parts.push(`#${msg.message_index}`);
       if (msg.created_at) parts.push(msg.created_at);
