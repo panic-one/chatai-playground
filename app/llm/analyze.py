@@ -10,12 +10,19 @@ ANALYZER_MODEL = os.getenv("ANALYZER_MODEL")
 CATEGORIES = ("inquiry", "writing", "translation", "reasoning", "programming")
 DIFFICULTIES = ("low", "medium", "high")
 
-AI_PROMPT = f"""
+AI_PROMPT = (
+    """
 あなたはユーザーのメッセージを分類するAIです。
 以下のJSONだけを返してください。
 {
-"category": "{" | ".join(CATEGORIES)}",
-"difficulty": "{" | ".join(DIFFICULTIES)}",
+"category": "
+"""
+   + " | ".join(CATEGORIES)
+   + """",
+"difficulty": "
+"""
+   + " | ".join(DIFFICULTIES)
+   + """",
 "reason": "理由"
 }
 
@@ -43,6 +50,7 @@ difficulty:
 - 出力: {"category": "programming", "difficulty": "medium", "reason": "アルゴリズム"}
 
 """
+)
 
 CATEGORY_SCORES = {
     "inquiry": 10,
@@ -152,7 +160,7 @@ def analyze_user_message(user_message: str) -> AnalysisResult:
 
 def request_score(provider: str, category: str, difficulty: str) -> int:
     if provider not in PROVIDER_CATEGORY_SCORE:
-        raise ValueError(f"Unsupproted provider: {provider}")
+        raise ValueError(f"Unsupported provider: {provider}")
     category_score = CATEGORY_SCORES.get(category, CATEGORY_SCORES["inquiry"])
     difficulty_score = DIFFICULTY_SCORES.get(difficulty, DIFFICULTY_SCORES["medium"])
     provider_score = PROVIDER_CATEGORY_SCORE[provider].get(category, 0)
