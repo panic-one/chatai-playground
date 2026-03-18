@@ -6,23 +6,21 @@ from openai import OpenAI, OpenAIError
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 ANALYZER_MODEL = os.getenv("ANALYZER_MODEL")
+if not ANALYZER_MODEL:
+    raise RuntimeError(
+        "ANALYZER_MODEL environment variable is not set."
+        "Please configure an analyzer model to use with the OpenAI client"
+    )
 
 CATEGORIES = ("inquiry", "writing", "translation", "reasoning", "programming")
 DIFFICULTIES = ("low", "medium", "high")
 
-AI_PROMPT = (
-    """
+AI_PROMPT = """
 あなたはユーザーのメッセージを分類するAIです。
 以下のJSONだけを返してください。
 {
-"category": "
-"""
-   + " | ".join(CATEGORIES)
-   + """",
-"difficulty": "
-"""
-   + " | ".join(DIFFICULTIES)
-   + """",
+"category": "{categories}",
+"difficulty": "{difficulties}",
 "reason": "理由"
 }
 
@@ -49,7 +47,9 @@ difficulty:
 - 入力: Pythonで二分探索のコードを書いて 
 - 出力: {"category": "programming", "difficulty": "medium", "reason": "アルゴリズム"}
 
-"""
+""".format(
+    categories=" | ".join(CATEGORIES),
+    difficulties=" | ".join(DIFFICULTIES),
 )
 
 CATEGORY_SCORES = {
