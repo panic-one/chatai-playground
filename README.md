@@ -26,7 +26,7 @@ https://github.com/user-attachments/assets/032ed0ec-d263-47bc-b270-1adb362a7844
 - スレッド一覧ができる
 
 ### 現在の進捗2
-https://github.com/user-attachments/assets/708a6ecd-2363-46e4-b4dc-4cf586605da3
+https://github.com/panic-one/chatai-playground/issues/20#issuecomment-4102302404
 
 - ユーザーはLLMのProviderを選択し、モデルは分析結果に基づいて選択する方法に変更
 - Provider選択をautoにしていた場合、分野ごとに最適なmodelになるようにproviderを決定する
