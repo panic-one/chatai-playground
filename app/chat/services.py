@@ -174,12 +174,25 @@ def run_ai_generation(app, message_id):
             db.session.commit()
 
             full_text = ""
+            actual_model = None
+            actual_provider = None
 
-            for delta in stream_selected_model(user_msg.content, ai.model):
-                full_text += delta
+            for piece in stream_selected_model(user_msg.content, ai.model):
+                full_text += piece.content
+
+                if piece.actual_model:
+                    actual_model = piece.actual_model
+                if piece.actual_provider:
+                    actual_provider = piece.actual_provider
+                
                 ai.content = full_text
                 db.session.commit()
             
+            if actual_model:
+                ai.model = actual_model
+            if actual_provider:
+                ai.provider = actual_provider
+
             ai.status = "completed"
             db.session.commit()
 

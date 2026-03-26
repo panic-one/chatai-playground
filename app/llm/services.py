@@ -1,7 +1,7 @@
 from collections.abc import Iterator
 from dataclasses import dataclass
 from .analyze import request_score, analyze_user_message, AnalysisResult
-from .openrouter import stream_openrouter
+from .openrouter import stream_openrouter, OpenRouterChunk
 
 
 PROVIDER_CONFIG = {
@@ -32,11 +32,11 @@ PROVIDER_CONFIG = {
 class LLMSelection:
     provider: str
     model: str
-    score: int
+    score: int | None
     routing_mode: str
 
 def get_providers(provider: str | None) -> list[str]:
-    if not provider or provider == "auto":
+    if not provider:
         return list(PROVIDER_CONFIG.keys())
     
     if provider not in PROVIDER_CONFIG:
@@ -69,7 +69,7 @@ def resolve_selection(category: str, difficulty: str, provider: str | None = Non
         
     return max(candidates, key=lambda x: x.score)
 
-def stream_selected_model(user_message: str, model: str) -> Iterator[str]:
+def stream_selected_model(user_message: str, model: str) -> Iterator[OpenRouterChunk]:
     if not user_message.strip():
         raise ValueError("user_message is required")
     if not model:
@@ -79,6 +79,9 @@ def stream_selected_model(user_message: str, model: str) -> Iterator[str]:
 def stream_ai_response(user_message: str, provider: str | None = None) -> Iterator[str]:
     if not user_message.strip():
         raise ValueError("user_message is required")
+    
+    if provider == "auto":
+        return stream_openrouter(user_message, "openrouter/auto")
     
     analysis = analyze_user_message(user_message)
 
@@ -95,6 +98,34 @@ def stream_ai_response_with_meta(user_message: str, provider: str | None = None)
         raise ValueError("user_message is required")
     
     analysis = analyze_user_message(user_message)
+
+    if provider == "auto":
+        stream = stream_openrouter(user_message, "openrouter/auto")
+
+        selection = LLMSelection(
+            provider="openrouter",
+            model="openrouter/auto",
+            score=None,
+            routing_mode="openrouter_auto"
+        )
+
+        analysis = AnalysisResult(
+            category="inquiry",
+            difficulty="mediun",
+            reason="routed by openrouter auto"
+        )
+
+        base_stream = stream_openrouter(user_message, "openrouter/auto")
+
+        def auto_stream_wrapper() -> Iterator[OpenRouterChunk]:
+            for piece in base_stream:
+                if piece.actual_model:
+                    selection.model = piece.actual_model
+                if piece.actual_provider:
+                    selection.provider = piece.actual_provider
+                yield piece
+
+        return auto_stream_wrapper(), selection, analysis
 
     selection = resolve_selection(
         category=analysis.category,
