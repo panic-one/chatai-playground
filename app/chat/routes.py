@@ -64,7 +64,6 @@ def post_message(thread_id: int):
     payload = request.get_json(silent=True) or {}
     content = (payload.get("content") or "").strip()
     provider = (payload.get("provider") or "auto").strip()
-    model = (payload.get("model") or "").strip() or None
 
     if not content:
         return jsonify({"error": "content is required"}), 400
@@ -73,7 +72,6 @@ def post_message(thread_id: int):
         _, selection, analysis = stream_ai_response_with_meta(
             user_message=content,
             provider=provider,
-            model=model,
         )
     except ValueError as err:
         return jsonify({"error": str(err)}), 400
