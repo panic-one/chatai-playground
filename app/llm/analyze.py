@@ -66,41 +66,6 @@ DIFFICULTY_SCORES = {
     "high": 40,
 }
 
-
-PROVIDER_CATEGORY_SCORE = {
-    "openai": {
-        "inquiry": 5,
-        "translation": 0,
-        "writing": 0,
-        "reasoning": 0,
-        "programming": 0,
-    },
-
-    "gemini": {
-        "inquiry": 0,
-        "translation": 0,
-        "writing": 5,
-        "reasoning": 0,
-        "programming": 0,
-    },
-
-    "claude": {
-        "inquiry": 0,
-        "translation": 5,
-        "writing": 0,
-        "reasoning": 5,
-        "programming": 0,
-    },
-
-    "deepseek": {
-        "inquiry": 0,
-        "translation": 0,
-        "writing": 0,
-        "reasoning": 0,
-        "programming": 5,
-    }
-}
-
 @dataclass
 class AnalysisResult:
     category: str
@@ -158,11 +123,8 @@ def analyze_user_message(user_message: str) -> AnalysisResult:
         reason=reason,
     )
 
-def request_score(provider: str, category: str, difficulty: str) -> int:
-    if provider not in PROVIDER_CATEGORY_SCORE:
-        raise ValueError(f"Unsupported provider: {provider}")
+def request_score(category: str, difficulty: str) -> int:
     category_score = CATEGORY_SCORES.get(category, CATEGORY_SCORES["inquiry"])
     difficulty_score = DIFFICULTY_SCORES.get(difficulty, DIFFICULTY_SCORES["medium"])
-    provider_score = PROVIDER_CATEGORY_SCORE[provider].get(category, 0)
 
-    return category_score + difficulty_score + provider_score
+    return category_score + difficulty_score

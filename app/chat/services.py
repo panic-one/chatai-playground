@@ -5,12 +5,11 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 import threading
 from flask import current_app
-from app.llm.services import stream_ai_response
+from app.llm.services import stream_selected_model
 
 JST = ZoneInfo("Asia/Tokyo")
 
 DEFAULT_PROVIDER = "openai"
-DEFAULT_MODEL = "gpt-4o-mini"
  
 def create_thread(uid, title):
     title = (title or "").strip()
@@ -87,7 +86,9 @@ def create_user_message_and_ai(uid, thread_id, content, provider=None, model=Non
         return None, None, err
     
     selected_provider = provider or DEFAULT_PROVIDER
-    selected_model = model or DEFAULT_MODEL
+
+    if not model:
+        raise ValueError("model is required")
 
     try:
         now = datetime.now(JST)
@@ -111,7 +112,7 @@ def create_user_message_and_ai(uid, thread_id, content, provider=None, model=Non
             content="",
             firebase_uid=None,
             provider=selected_provider,
-            model=selected_model,
+            model=model,
             created_at=now,
             message_index=base_index + 1,
             status="generating"
@@ -165,18 +166,33 @@ def run_ai_generation(app, message_id):
 
             if not user_msg:
                 ai.content = "ユーザーメッセージが見つかりませんでした"
+                ai.status = "failed"
                 db.session.commit()
                 return
+            
             ai.content = ""
             db.session.commit()
 
             full_text = ""
+            actual_model = None
+            actual_provider = None
 
-            for delta in stream_ai_response(user_msg.content, provider=ai.provider, model=ai.model):
-                full_text += delta
+            for piece in stream_selected_model(user_msg.content, ai.model):
+                full_text += piece.content
+
+                if piece.actual_model:
+                    actual_model = piece.actual_model
+                if piece.actual_provider:
+                    actual_provider = piece.actual_provider
+                
                 ai.content = full_text
                 db.session.commit()
             
+            if actual_model:
+                ai.model = actual_model
+            if actual_provider:
+                ai.provider = actual_provider
+
             ai.status = "completed"
             db.session.commit()
 
